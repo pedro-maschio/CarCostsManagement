@@ -1,0 +1,14 @@
+package com.pedro.maschio.carcostsmanagement.ui.screens.main
+
+import com.pedro.maschio.carcostsmanagement.data.database.entities.Car
+import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
+
+data class MainScreenUiState(
+    val isAddEntryShown: Boolean = false,
+    val isAddCarDialogShown: Boolean = false,
+    val cars: List<Car> = emptyList(),
+    val currentCarName: String = "",
+    val totalMileage: Int = 0,
+    val totalCosts: Double = 0.0,
+    val costs: List<CarCost> = emptyList()
+)
