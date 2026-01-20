@@ -27,9 +27,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pedro.maschio.carcostsmanagement.R
 import com.pedro.maschio.carcostsmanagement.data.database.entities.Car
 import com.pedro.maschio.carcostsmanagement.ui.components.EmptyList
 import org.koin.androidx.compose.koinViewModel
@@ -53,10 +55,10 @@ fun CarsScreen(
                 Icon(Icons.Default.Delete, contentDescription = "Example Icon")
             },
             title = {
-                Text(text = "Are you sure you want to delete?")
+                Text(text = stringResource(R.string.delete_dialog_title))
             },
             text = {
-                Text(text = "If you delete a car, all cost entries related to it will also be deleted permanently")
+                Text(text = stringResource(R.string.delete_dialog_message))
             },
             onDismissRequest = {
                viewModel.toggleDeleteDialog(null)
@@ -67,7 +69,7 @@ fun CarsScreen(
                         viewModel.deleteCar()
                     }
                 ) {
-                    Text("Confirm")
+                    Text(stringResource(R.string.positive_button))
                 }
             },
             dismissButton = {
@@ -76,7 +78,7 @@ fun CarsScreen(
                         viewModel.toggleDeleteDialog(null)
                     }
                 ) {
-                    Text("Dismiss")
+                    Text(stringResource(R.string.dismiss_button))
                 }
             }
         )
@@ -90,7 +92,7 @@ fun CarsScreen(
                 Icon(imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
             }
         }, title = {
-            Text(text = "Your cars")
+            Text(text = stringResource(R.string.cars_screen_title))
         })
     }) { paddingValues ->
         LazyColumn(modifier = modifier.padding(paddingValues)) {
@@ -109,8 +111,7 @@ fun CarsScreen(
                 if (uiState.cars.isEmpty()) {
                     EmptyList(
                         modifier = Modifier.padding(top = 16.dp),
-                        message = "There are no cars added yet. Go back to the home screen" +
-                                "and click on the plus icon on the right corner"
+                        message = stringResource(R.string.empty_cars_message)
                     )
                 }
             }

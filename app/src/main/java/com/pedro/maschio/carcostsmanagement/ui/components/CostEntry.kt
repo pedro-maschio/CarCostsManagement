@@ -21,8 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pedro.maschio.carcostsmanagement.R
 import com.pedro.maschio.carcostsmanagement.utils.DateUtils.getDateStringFromMillis
 
 @Composable
@@ -39,11 +41,12 @@ fun CostEntry(
     onCostClick: () -> Unit = {},
     onDeleteButtonClick: () -> Unit = {}
 ) {
+    val costOptions = stringArrayResource(R.array.cost_options)
     val icon = when (typeName) {
-        "Gas" -> {
+        costOptions[0] -> {
             Icons.Default.LocalGasStation
         }
-        "Maintenance" -> {
+        costOptions[1] -> {
             Icons.Default.Build
         }
         else -> {

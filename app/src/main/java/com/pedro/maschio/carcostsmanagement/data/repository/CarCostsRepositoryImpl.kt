@@ -10,6 +10,7 @@ import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
 import com.pedro.maschio.carcostsmanagement.data.setIntroShown
 import com.pedro.maschio.carcostsmanagement.data.setSelectedCarId
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class CarCostsRepositoryImpl(
@@ -33,7 +34,8 @@ class CarCostsRepositoryImpl(
     }
 
     override val selectedCar: Flow<Long> = context.dataStore.data.map {
-        it[SettingsKeys.SELECTED_CAR_ID] ?: 1 // initial room id (when there's only one car, this one is the default selected!)
+        it[SettingsKeys.SELECTED_CAR_ID]
+            ?: 1 // initial room id (when there's only one car, this one is the default selected!)
     }
 
     override suspend fun insertCost(cost: CarCost) {
@@ -76,6 +78,13 @@ class CarCostsRepositoryImpl(
 
     override suspend fun deleteCar(car: Car) {
         carDao.deleteCar(car)
+
+        // Ensure that there is a selected car after deletion
+        val cars = getCars()
+        val currentSelectedCar = selectedCar.first()
+        if (currentSelectedCar !in cars.map { it.id }) {
+            setSelectedCar(cars.first().id)
+        }
     }
 
 }

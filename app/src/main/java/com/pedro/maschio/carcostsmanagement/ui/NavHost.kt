@@ -86,7 +86,7 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
 
     composable<CarsScreen> {
         CarsScreen {
-            navController.navigate(MainScreen)
+            navController.popBackStack()
         }
     }
 }

@@ -15,25 +15,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pedro.maschio.carcostsmanagement.R
 
 @Composable
 fun CostsHeader(
-    modifier: Modifier = Modifier,
-    totalCosts: Double = 2500.0,
-    totalMileage: Int = 15000
+    modifier: Modifier = Modifier, totalCosts: Double = 2500.0, totalMileage: Int = 15000
 ) {
     Row(modifier = modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CostsCard(title = "Total", value = "R$ $totalCosts")
-        CostsCard(title = "Quilometragem atual", value = "$totalMileage km")
+        CostsCard(title = stringResource(R.string.total_costs), value = "R$ $totalCosts")
+        CostsCard(title = stringResource(R.string.total_mileage), value = "$totalMileage km")
     }
 
 }
 
 @Preview
 @Composable
-fun CostsHeaderPreview(modifier: Modifier = Modifier) {
+fun CostsHeaderPreview() {
     CostsHeader()
 }
 

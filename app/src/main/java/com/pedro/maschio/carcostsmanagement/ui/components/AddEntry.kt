@@ -29,11 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.pedro.maschio.carcostsmanagement.R
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
 import com.pedro.maschio.carcostsmanagement.utils.DateUtils.getDateStringFromMillis
 
@@ -95,7 +98,7 @@ fun AddCostEntry(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        val radioOptions = listOf("Gas", "Maintenance", "Other")
+        val radioOptions = stringArrayResource(R.array.cost_options)
         val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
         Column(modifier.selectableGroup()) {
             Text(text = "Type")
@@ -132,38 +135,38 @@ fun AddCostEntry(
                 imeAction = ImeAction.Done
             ),
             label = {
-                Text(text = "Amount (R$)")
+                Text(text = stringResource(R.string.amount_label))
             },
             maxLines = 1,
-            value = if(model.price == 0.0) "" else model.price.toString(),
+            value = if (model.price == 0.0) "" else model.price.toString(),
             onValueChange = { onPriceChange(it) },
         )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             label = {
-                Text(text = "Current mileage (optional)")
+                Text(text = stringResource(R.string.mileage_label))
             },
             maxLines = 1,
-            value = if(model.mileage == 0) "" else model.mileage.toString(),
+            value = if (model.mileage == 0) "" else model.mileage.toString(),
             onValueChange = { onMileageChange(it) })
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text(text = "Description (optional)")
+                Text(text = stringResource(R.string.description_label))
             },
             value = model.description, onValueChange = { onDescriptionChange(it) })
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
             label = {
-                Text(text = "Date")
+                Text(text = stringResource(R.string.date_label))
             },
             readOnly = true,
             trailingIcon = {
                 IconButton(onClick = { showDatePicker = !showDatePicker }) {
                     Icon(
                         imageVector = Icons.Default.DateRange,
-                        contentDescription = "Select date"
+                        contentDescription = null
                     )
                 }
             },
@@ -188,14 +191,18 @@ fun AddCostEntry(
                         )
                     )
                 }) {
-                Text(text = if (model.id == 0L) "Add cost" else "Update cost")
+                Text(
+                    text = if (model.id == 0L) stringResource(R.string.add_cost_button) else stringResource(
+                        R.string.update_cost_button
+                    )
+                )
             }
             Button(
                 modifier = Modifier.padding(top = 16.dp, bottom = 16.dp, end = 8.dp),
                 onClick = {
                     onCostEntryCancelled()
                 }) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.cancel_button))
             }
         }
     }
@@ -210,12 +217,12 @@ fun AddCostEntry(
                     }
                     showDatePicker = false
                 }) {
-                    Text("OK")
+                    Text(stringResource(R.string.ok_button))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDatePicker = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel_button))
                 }
             }
         ) {

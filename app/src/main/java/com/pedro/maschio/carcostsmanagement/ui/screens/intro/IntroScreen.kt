@@ -13,7 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pedro.maschio.carcostsmanagement.R
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
@@ -35,13 +37,13 @@ fun IntroScreen(
     Scaffold(modifier = modifier, topBar = {
         TopAppBar(
             title = {
-                Text(text = "Create your first car")
+                Text(text = stringResource(R.string.add_your_first_car))
             })
     }, floatingActionButton = {
         FloatingActionButton(onClick = {
             viewModel.onSaveCar()
         }) {
-            Text(text = "Next")
+            Text(text = stringResource(R.string.next))
         }
     }) { paddingValues ->
 
@@ -51,8 +53,7 @@ fun IntroScreen(
                 .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "Before you start, add your first car")
-
+            Text(text = stringResource(R.string.add_your_first_car_message))
             TextField(value = uiState.value.carName, onValueChange = {
                 viewModel.onCarNameChanged(it)
             }, maxLines = 1)

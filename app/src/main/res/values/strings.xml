@@ -1,3 +1,39 @@
 <resources>
     <string name="app_name">Car Costs Management</string>
+
+    <!--    Intro Screen    -->
+    <string name="add_your_first_car">Add your first car</string>
+    <string name="add_your_first_car_message">Before you start, add your first car</string>
+    <string name="next">Next</string>
+
+    <!--    Main Screen    -->
+    <string name="add_new_car">Add a new car</string>
+    <string name="positive_button">Confirm</string>
+    <string name="dismiss_button">Dismiss</string>
+    <string name="delete_car">Delete a car</string>
+    <string name="add_cost">Add Cost</string>
+
+    <!--    Cars Screen    -->
+    <string name="delete_dialog_title">Are you sure you want to delete?</string>
+    <string name="delete_dialog_message">If you delete a car, all cost entries related to it will also be deleted permanently</string>
+    <string name="cars_screen_title">Your cars</string>
+    <string name="empty_cars_message">There are no cars added yet. Go back to the home screen and click on the plus icon on the right corner</string>
+
+    <!--    Miscellaneous    -->
+    <string-array name="cost_options">
+        <item>Gas</item>
+        <item>Maintenance</item>
+        <item>Other</item>
+    </string-array>
+    <string name="amount_label">Amount (R$)</string>
+    <string name="mileage_label">Current mileage (optional)</string>
+    <string name="description_label">Description (optional)</string>
+    <string name="date_label">Date</string>
+    <string name="add_cost_button">Add cost</string>
+    <string name="update_cost_button">Update cost</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="ok_button">OK</string>
+    <string name="total_costs">Total costs</string>
+    <string name="total_mileage">Total mileage</string>
+
 </resources>

@@ -34,8 +34,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.pedro.maschio.carcostsmanagement.R
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
 import com.pedro.maschio.carcostsmanagement.ui.components.AddCostEntry
 import com.pedro.maschio.carcostsmanagement.ui.components.CircleLetter
@@ -66,7 +68,7 @@ fun MainScreen(
         uiState.isAddCarDialogShown -> {
             AlertDialog(
                 title = {
-                    Text(text = "Add a new car")
+                    Text(text = stringResource(R.string.add_new_car))
                 },
                 text = {
                     TextField(value = uiState.currentCarName, onValueChange = {
@@ -84,7 +86,7 @@ fun MainScreen(
                             viewModel.updateCarName("")
                         }
                     ) {
-                        Text("Confirm")
+                        Text(stringResource(R.string.positive_button))
                     }
                 },
                 dismissButton = {
@@ -94,7 +96,7 @@ fun MainScreen(
                             viewModel.updateCarName("")
                         }
                     ) {
-                        Text("Dismiss")
+                        Text(stringResource(R.string.dismiss_button))
                     }
                 }
             )
@@ -108,9 +110,14 @@ fun MainScreen(
                 Text("Settings", modifier = Modifier.padding(16.dp))
                 HorizontalDivider()
                 NavigationDrawerItem(
-                    label = { Text(text = "Delete a car") },
+                    label = { Text(text = stringResource(R.string.delete_car)) },
                     selected = false,
-                    onClick = { onDeleteButtonClick() },
+                    onClick = {
+                        onDeleteButtonClick()
+                        scope.launch {
+                            drawerState.close()
+                        }
+                    },
                     icon = {
                         Icon(
                             imageVector = Icons.Default.Delete,
@@ -172,7 +179,7 @@ fun MainScreen(
                                 .padding(16.dp),
                             onClick = { viewModel.toggleAddEntry() }
                         ) {
-                            Text(text = "Add Cost")
+                            Text(text = stringResource(R.string.add_cost))
                         }
                     }
                     AnimatedVisibility(visible = uiState.isAddEntryShown) {
