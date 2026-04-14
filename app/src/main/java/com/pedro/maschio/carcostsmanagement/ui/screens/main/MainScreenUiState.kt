@@ -8,7 +8,6 @@ data class MainScreenUiState(
     val isAddCarDialogShown: Boolean = false,
     val cars: List<Car> = emptyList(),
     val currentCarName: String = "",
-    val totalMileage: Int = 0,
     val totalCosts: Double = 0.0,
     val costs: List<CarCost> = emptyList()
 )

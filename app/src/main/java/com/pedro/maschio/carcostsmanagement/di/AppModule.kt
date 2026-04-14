@@ -2,23 +2,30 @@ package com.pedro.maschio.carcostsmanagement.di
 
 import androidx.room.Room
 import com.pedro.maschio.carcostsmanagement.data.database.AppDatabase
+import com.pedro.maschio.carcostsmanagement.data.network.CarCostsApi
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepository
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepositoryImpl
 import com.pedro.maschio.carcostsmanagement.ui.AppViewModel
 import com.pedro.maschio.carcostsmanagement.ui.screens.cars.CarsScreenViewModel
 import com.pedro.maschio.carcostsmanagement.ui.screens.intro.IntroViewModel
+import com.pedro.maschio.carcostsmanagement.ui.screens.login.LoginViewModel
 import com.pedro.maschio.carcostsmanagement.ui.screens.main.MainScreenViewModel
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 val appModule = module {
-    single<CarCostsRepository> { CarCostsRepositoryImpl(androidApplication(), get(), get()) }
+    single<CarCostsRepository> { CarCostsRepositoryImpl(androidApplication(), get(), get(), get()) }
     viewModelOf(::MainScreenViewModel)
     viewModelOf(::CarsScreenViewModel)
     viewModelOf(::IntroViewModel)
     viewModelOf(::AppViewModel)
+    viewModelOf(::LoginViewModel)
 
     single {
         Room.databaseBuilder(androidContext(), AppDatabase::class.java, "car_costs_db")
@@ -27,4 +34,29 @@ val appModule = module {
 
     single { get<AppDatabase>().carCostDao() }
     single { get<AppDatabase>().carDao() }
+
+
+    single {
+        HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+    }
+
+    single {
+        OkHttpClient.Builder()
+            .addInterceptor(get<HttpLoggingInterceptor>())
+            .build()
+    }
+
+    single {
+        Retrofit.Builder()
+            .baseUrl("https://10.0.2.2:8080/")
+            .client(get())
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
+    single {
+        get<Retrofit>().create(CarCostsApi::class.java)
+    }
 }

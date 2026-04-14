@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">Car Costs Management</string>
 
+    <!--    Login Screen    -->
+    <string name="login_title">Login</string>
+    <string name="username_label">Username</string>
+    <string name="password_label">Password</string>
+    <string name="login_button">Login</string>
+    <string name="login_with_google">Login with Google</string>
+
     <!--    Intro Screen    -->
     <string name="add_your_first_car">Add your first car</string>
     <string name="add_your_first_car_message">Before you start, add your first car</string>
@@ -10,7 +17,7 @@
     <string name="add_new_car">Add a new car</string>
     <string name="positive_button">Confirm</string>
     <string name="dismiss_button">Dismiss</string>
-    <string name="delete_car">Delete a car</string>
+    <string name="manage_cars">Manage your cars</string>
     <string name="add_cost">Add Cost</string>
 
     <!--    Cars Screen    -->
@@ -26,7 +33,6 @@
         <item>Other</item>
     </string-array>
     <string name="amount_label">Amount (R$)</string>
-    <string name="mileage_label">Current mileage (optional)</string>
     <string name="description_label">Description (optional)</string>
     <string name="date_label">Date</string>
     <string name="add_cost_button">Add cost</string>
@@ -34,6 +40,4 @@
     <string name="cancel_button">Cancel</string>
     <string name="ok_button">OK</string>
     <string name="total_costs">Total costs</string>
-    <string name="total_mileage">Total mileage</string>
-
 </resources>

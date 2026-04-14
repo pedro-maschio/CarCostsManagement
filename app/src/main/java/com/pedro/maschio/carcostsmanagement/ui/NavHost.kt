@@ -15,9 +15,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.pedro.maschio.carcostsmanagement.ui.screens.cars.CarsScreen
 import com.pedro.maschio.carcostsmanagement.ui.screens.intro.IntroScreen
+import com.pedro.maschio.carcostsmanagement.ui.screens.login.LoginScreen
 import com.pedro.maschio.carcostsmanagement.ui.screens.main.MainScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
+
+@Serializable
+object LoginScreen
 
 @Serializable
 object IntroScreen
@@ -32,42 +36,45 @@ object CarsScreen
 fun NavHost(modifier: Modifier = Modifier, viewModel: AppViewModel = koinViewModel()) {
     val navController = rememberNavController()
     val introShown = viewModel.introShown.collectAsState().value
+    val isLoggedIn = viewModel.isLoggedIn.collectAsState().value
 
-    when (introShown) {
-        null -> {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-            }
-
+    if (introShown == null || isLoggedIn == null) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
         }
+        return
+    }
 
-        true -> {
-            NavHost(
-                navController = navController,
-                startDestination = MainScreen,
-                modifier = modifier
-            ) {
-                mainGraph(navController)
-            }
-        }
+    val startDestination = when {
+        !isLoggedIn -> LoginScreen
+        !introShown -> IntroScreen
+        else -> MainScreen
+    }
 
-        false -> {
-            NavHost(
-                navController = navController,
-                startDestination = IntroScreen,
-                modifier = modifier
-            ) {
-                mainGraph(navController)
-            }
-        }
+    NavHost(
+        navController = navController,
+        startDestination = startDestination,
+        modifier = modifier
+    ) {
+        mainGraph(navController)
     }
 }
 
 fun NavGraphBuilder.mainGraph(navController: NavHostController) {
+    composable<LoginScreen> {
+        LoginScreen(
+            onLoginSuccess = {
+                navController.navigate(IntroScreen) {
+                    popUpTo(LoginScreen) { inclusive = true }
+                }
+            }
+        )
+    }
+
     composable<IntroScreen> {
         IntroScreen(
             goToCostsListing = {

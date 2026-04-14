@@ -13,4 +13,11 @@ class AppViewModel(private val repository: CarCostsRepository): ViewModel() {
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = null
         )
+
+    val isLoggedIn = repository.isLoggedIn
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = null
+        )
 }

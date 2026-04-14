@@ -11,6 +11,7 @@ val Context.dataStore by preferencesDataStore(name = "settings")
 object SettingsKeys {
     val INTRO_SHOWN = booleanPreferencesKey("intro_shown")
     val SELECTED_CAR_ID = longPreferencesKey("selected_car_id")
+    val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
 }
 
 suspend fun setSelectedCarId(context: Context, carId: Long) {
@@ -22,5 +23,11 @@ suspend fun setSelectedCarId(context: Context, carId: Long) {
 suspend fun setIntroShown(context: Context) {
     context.dataStore.edit { prefs ->
         prefs[SettingsKeys.INTRO_SHOWN] = true
+    }
+}
+
+suspend fun setIsLoggedIn(context: Context, isLoggedIn: Boolean) {
+    context.dataStore.edit { prefs ->
+        prefs[SettingsKeys.IS_LOGGED_IN] = isLoggedIn
     }
 }

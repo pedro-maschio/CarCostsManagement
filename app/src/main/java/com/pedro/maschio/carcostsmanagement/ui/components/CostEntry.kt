@@ -33,7 +33,6 @@ fun CostEntry(
     shape: RoundedCornerShape = RoundedCornerShape(size = 8.dp),
     title: String = "Shell gas station",
     typeName: String = "Gas",
-    mileage: Int = 134000,
     mileageType: String = "km",
     date: Long = System.currentTimeMillis(),
     price: Double = 247.0,
@@ -54,11 +53,7 @@ fun CostEntry(
         }
     }
     val formattedDate = getDateStringFromMillis(date)
-    val costTag = if(mileage == 0) {
-        "$typeName • $formattedDate"
-    } else {
-        "$typeName • $mileage $mileageType • $formattedDate"
-    }
+    val costTag = "$typeName • $formattedDate"
     Surface(
         modifier = modifier
             .clip(shape)

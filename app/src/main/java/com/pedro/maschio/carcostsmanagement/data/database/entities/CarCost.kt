@@ -23,7 +23,6 @@ data class CarCost(
     @ColumnInfo(name = "type") val type: String,
     @ColumnInfo(name = "price") val price: Double,
     @ColumnInfo(name = "date") val date: Long,
-    @ColumnInfo(name = "mileage") val mileage: Int,
     @ColumnInfo(name = "description") val description: String,
     @ColumnInfo(name = "carId") val carId: Long = -1,
 )

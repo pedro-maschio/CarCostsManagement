@@ -1,6 +1,7 @@
 package com.pedro.maschio.carcostsmanagement.ui.screens.cars
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,10 +24,14 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -129,7 +134,8 @@ fun CarItem(
     isDeletable: Boolean,
     onClick: () -> Unit
 ) {
-
+    // TODO: finish this later. Add rename option for car names!!
+    var isEditing by remember { mutableStateOf(false) }
     Surface(
         modifier = modifier
             .clip(shape),
@@ -143,7 +149,13 @@ fun CarItem(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).pointerInput(Unit) { detectTapGestures(onDoubleTap = { tapOffset ->
+                    if(isEditing) {
+                        // define edit logic here
+                    } else {
+                        isEditing = true
+                    }
+                })},
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(text = car.name)

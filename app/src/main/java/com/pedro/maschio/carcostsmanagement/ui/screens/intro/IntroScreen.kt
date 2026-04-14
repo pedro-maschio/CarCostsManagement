@@ -3,6 +3,8 @@ package com.pedro.maschio.carcostsmanagement.ui.screens.intro
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
@@ -14,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.pedro.maschio.carcostsmanagement.R
 import kotlinx.coroutines.flow.collectLatest
@@ -56,7 +59,9 @@ fun IntroScreen(
             Text(text = stringResource(R.string.add_your_first_car_message))
             TextField(value = uiState.value.carName, onValueChange = {
                 viewModel.onCarNameChanged(it)
-            }, maxLines = 1)
+            }, maxLines = 1, keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Go), keyboardActions = KeyboardActions(onGo = {
+                viewModel.onSaveCar()
+            }))
         }
     }
 }

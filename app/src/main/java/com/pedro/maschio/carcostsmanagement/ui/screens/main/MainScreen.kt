@@ -7,8 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.DrawerValue
@@ -110,7 +110,7 @@ fun MainScreen(
                 Text("Settings", modifier = Modifier.padding(16.dp))
                 HorizontalDivider()
                 NavigationDrawerItem(
-                    label = { Text(text = stringResource(R.string.delete_car)) },
+                    label = { Text(text = stringResource(R.string.manage_cars)) },
                     selected = false,
                     onClick = {
                         onDeleteButtonClick()
@@ -120,7 +120,7 @@ fun MainScreen(
                     },
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Delete,
+                            imageVector = Icons.Default.Settings,
                             contentDescription = null
                         )
                     }
@@ -168,10 +168,7 @@ fun MainScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 item {
-                    CostsHeader(
-                        totalMileage = uiState.totalMileage,
-                        totalCosts = uiState.totalCosts,
-                    )
+                    CostsHeader(totalCosts = uiState.totalCosts,)
                     AnimatedVisibility(visible = !(uiState.isAddEntryShown)) {
                         Button(
                             modifier = Modifier
@@ -203,7 +200,6 @@ fun MainScreen(
                         typeName = cost.type,
                         price = cost.price,
                         date = cost.date,
-                        mileage = cost.mileage,
                         onCostClick = {
                             selectedCostEntry = cost
                             viewModel.toggleAddEntry()

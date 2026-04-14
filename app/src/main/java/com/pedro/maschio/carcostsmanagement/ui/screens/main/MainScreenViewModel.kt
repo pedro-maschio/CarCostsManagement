@@ -28,7 +28,6 @@ class MainScreenViewModel(private val repository: CarCostsRepository) : ViewMode
     fun getMainScreenData() = viewModelScope.launch {
         selectedCarId.filterNotNull().collectLatest { carId ->
             getCars()
-            getMileage()
             getTotalCosts()
             getCosts(selectedCarId.value ?: 0)
         }
@@ -55,13 +54,6 @@ class MainScreenViewModel(private val repository: CarCostsRepository) : ViewMode
             else repository.updateCost(cost.copy(carId = selectedCarId))
             getMainScreenData()
         }
-    }
-
-    private fun getMileage() = viewModelScope.launch {
-        selectedCarId.filterNotNull().collectLatest { carId ->
-            _uiState.update { it.copy(totalMileage = repository.getMileage(carId)) }
-        }
-
     }
 
     private fun getTotalCosts() = viewModelScope.launch {

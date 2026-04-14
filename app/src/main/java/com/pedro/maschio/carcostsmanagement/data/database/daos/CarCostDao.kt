@@ -25,7 +25,4 @@ interface CarCostDao {
 
     @Query("SELECT SUM(carCosts.price) FROM carCosts WHERE carId = :selectedCarId")
     suspend fun getTotalCosts(selectedCarId: Long): Double
-
-    @Query("SELECT MAX(carCosts.mileage) FROM carCosts WHERE carId = :selectedCarId")
-    suspend fun getCurrentMileage(selectedCarId: Long): Int
 }

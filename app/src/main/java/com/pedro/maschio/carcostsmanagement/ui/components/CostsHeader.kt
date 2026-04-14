@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,11 +23,10 @@ import com.pedro.maschio.carcostsmanagement.R
 
 @Composable
 fun CostsHeader(
-    modifier: Modifier = Modifier, totalCosts: Double = 2500.0, totalMileage: Int = 15000
+    modifier: Modifier = Modifier, totalCosts: Double = 2500.0
 ) {
-    Row(modifier = modifier.padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(modifier = modifier.padding(16.dp).fillMaxWidth()) {
         CostsCard(title = stringResource(R.string.total_costs), value = "R$ $totalCosts")
-        CostsCard(title = stringResource(R.string.total_mileage), value = "$totalMileage km")
     }
 
 }
@@ -45,7 +45,7 @@ fun CostsCard(
     shape: RoundedCornerShape = RoundedCornerShape(size = 8.dp)
 ) {
     Surface(
-        modifier = modifier.clip(shape),
+        modifier = modifier.clip(shape).fillMaxWidth(),
         shape = shape,
         shadowElevation = 4.dp,
         border = BorderStroke(width = 1.dp, color = Color.Black)

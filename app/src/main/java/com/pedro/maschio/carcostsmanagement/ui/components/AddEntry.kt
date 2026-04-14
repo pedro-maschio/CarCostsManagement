@@ -1,5 +1,6 @@
 package com.pedro.maschio.carcostsmanagement.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -53,12 +55,12 @@ fun AddCostEntry(
                 type = "",
                 price = 0.0,
                 date = System.currentTimeMillis(),
-                mileage = 0,
                 description = ""
             )
         )
     }
     var showDatePicker by remember { mutableStateOf(false) }
+    var showAdditionalFields by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
 
     fun onPriceChange(price: String) {
@@ -70,17 +72,6 @@ fun AddCostEntry(
             return
         }
         model = model.copy(price = price.toDouble())
-    }
-
-    fun onMileageChange(mileage: String) {
-        if (mileage.isBlank()) {
-            model = model.copy(mileage = 0)
-            return
-        }
-        if (mileage.toIntOrNull() == null) {
-            return
-        }
-        model = model.copy(mileage = mileage.toInt())
     }
 
     fun onDescriptionChange(description: String) {
@@ -143,21 +134,6 @@ fun AddCostEntry(
         )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-            label = {
-                Text(text = stringResource(R.string.mileage_label))
-            },
-            maxLines = 1,
-            value = if (model.mileage == 0) "" else model.mileage.toString(),
-            onValueChange = { onMileageChange(it) })
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
-            label = {
-                Text(text = stringResource(R.string.description_label))
-            },
-            value = model.description, onValueChange = { onDescriptionChange(it) })
-        OutlinedTextField(
-            modifier = Modifier.fillMaxWidth(),
             label = {
                 Text(text = stringResource(R.string.date_label))
             },
@@ -174,7 +150,26 @@ fun AddCostEntry(
             value = getDateStringFromMillis(model.date), onValueChange = {
                 // No op
             })
-
+        if(!showAdditionalFields) {
+            IconButton(onClick = {
+                showAdditionalFields = !showAdditionalFields
+            }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null
+                )
+            }
+        }
+        AnimatedVisibility(visible = showAdditionalFields) {
+            Column {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    label = {
+                        Text(text = stringResource(R.string.description_label))
+                    },
+                    value = model.description, onValueChange = { onDescriptionChange(it) })
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -234,14 +229,13 @@ fun AddCostEntry(
 
 @Preview
 @Composable
-fun AddCostEntryPreview(modifier: Modifier = Modifier) {
+fun AddCostEntryPreview() {
     AddCostEntry(
         costEntry = CarCost(
             id = 0,
             type = "Gas",
             price = 247.0,
-            date = System.currentTimeMillis(),
-            mileage = 134000,
+            date = 32434223,
             description = ""
         )
     )
