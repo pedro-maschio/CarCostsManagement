@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pedro.maschio.carcostsmanagement.R
@@ -32,8 +33,7 @@ fun CostEntry(
     modifier: Modifier = Modifier,
     shape: RoundedCornerShape = RoundedCornerShape(size = 8.dp),
     title: String = "Shell gas station",
-    typeName: String = "Gas",
-    mileageType: String = "km",
+    type: Int = 0,
     date: Long = System.currentTimeMillis(),
     price: Double = 247.0,
     priceType: String = "R$",
@@ -41,11 +41,11 @@ fun CostEntry(
     onDeleteButtonClick: () -> Unit = {}
 ) {
     val costOptions = stringArrayResource(R.array.cost_options)
-    val icon = when (typeName) {
-        costOptions[0] -> {
+    val icon = when (type) {
+        0 -> {
             Icons.Default.LocalGasStation
         }
-        costOptions[1] -> {
+        1 -> {
             Icons.Default.Build
         }
         else -> {
@@ -53,7 +53,7 @@ fun CostEntry(
         }
     }
     val formattedDate = getDateStringFromMillis(date)
-    val costTag = "$typeName • $formattedDate"
+    val costTag = "${costOptions[type]} • $formattedDate"
     Surface(
         modifier = modifier
             .clip(shape)
@@ -72,7 +72,7 @@ fun CostEntry(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(text = title.ifEmpty { "$typeName cost" })
+                Text(text = title.ifEmpty { "${costOptions[type]} - ${stringResource(R.string.expense_title)}" })
                 Text(text = costTag)
             }
             Text(text = "$priceType $price")

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="cost_options">
+        <item>@string/gas_item</item>
+        <item>@string/maintenance_item</item>
+        <item>@string/others_item</item>
+    </string-array>
+</resources>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Car Costs Management</string>
+    <string name="app_name" translatable="false">Car Expense Management</string>
 
     <!--    Login Screen    -->
     <string name="login_title">Login</string>
@@ -18,26 +18,26 @@
     <string name="positive_button">Confirm</string>
     <string name="dismiss_button">Dismiss</string>
     <string name="manage_cars">Manage your cars</string>
-    <string name="add_cost">Add Cost</string>
+    <string name="add_cost">Add expense</string>
+    <string name="empty_expenses_message">There are no car costs added yet! Click on Add Cost to start tracking your car expenses!</string>
 
     <!--    Cars Screen    -->
     <string name="delete_dialog_title">Are you sure you want to delete?</string>
-    <string name="delete_dialog_message">If you delete a car, all cost entries related to it will also be deleted permanently</string>
+    <string name="delete_dialog_message">If you delete a car, all expense entries related to it will also be deleted permanently</string>
     <string name="cars_screen_title">Your cars</string>
     <string name="empty_cars_message">There are no cars added yet. Go back to the home screen and click on the plus icon on the right corner</string>
 
     <!--    Miscellaneous    -->
-    <string-array name="cost_options">
-        <item>Gas</item>
-        <item>Maintenance</item>
-        <item>Other</item>
-    </string-array>
-    <string name="amount_label">Amount (R$)</string>
+    <string name="gas_item">Gas</string>
+    <string name="maintenance_item">Maintenance</string>
+    <string name="others_item">Others</string>
+    <string name="amount_label">Amount ($)</string>
     <string name="description_label">Description (optional)</string>
     <string name="date_label">Date</string>
-    <string name="add_cost_button">Add cost</string>
-    <string name="update_cost_button">Update cost</string>
+    <string name="add_cost_button">Add expense</string>
+    <string name="update_cost_button">Update expense</string>
     <string name="cancel_button">Cancel</string>
-    <string name="ok_button">OK</string>
-    <string name="total_costs">Total costs</string>
+    <string name="ok_button" translatable="false">OK</string>
+    <string name="total_costs">Total expenses</string>
+    <string name="expense_title">expense</string>
 </resources>

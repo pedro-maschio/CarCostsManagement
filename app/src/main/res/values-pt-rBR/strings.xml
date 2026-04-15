@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="total_costs">Gastos totais</string>
+    <string name="amount_label">Valor (R$)</string>
+    <string name="description_label">Descrição (opcional)</string>
+    <string name="date_label">Data</string>
+    <string name="add_cost_button">Adicionar despesa</string>
+    <string name="update_cost_button">Atualizar despesa</string>
+    <string name="cancel_button">Cancelar</string>
+    <string name="login_title">Logar</string>
+    <string name="username_label">Nome de usuário</string>
+    <string name="password_label">Senha</string>
+    <string name="login_button">Logar</string>
+    <string name="login_with_google">Logar com o Google</string>
+    <string name="add_your_first_car">Adicione seu primeiro carro</string>
+    <string name="add_your_first_car_message">Antes de iniciar, adicione seu primeiro carro</string>
+    <string name="next">Próximo</string>
+    <string name="add_new_car">Adicione um novo carro</string>
+    <string name="positive_button">Confirmar</string>
+    <string name="dismiss_button">Cancelar</string>
+    <string name="manage_cars">Gerencie seus carros</string>
+    <string name="add_cost">Adicionar despesa</string>
+    <string name="delete_dialog_title">Tem certeza que deseja excluir?</string>
+    <string name="delete_dialog_message">Se você excluir um carro, todas as entradas (despesas) relacionadas a ele também serão excluídas permanentemente</string>
+    <string name="cars_screen_title">Seus carros</string>
+    <string name="empty_cars_message">Ainda não há carros cadastrados. Volte para a tela inicial e clique no ícone de mais no canto inferior direito</string>
+    <string name="empty_expenses_message">Ainda não há despesas cadastradas! Clique em Adicionar despesa para começar a gerenciar suas despesas</string>
+    <string name="gas_item">Gasolina</string>
+    <string name="maintenance_item">Manutenção</string>
+    <string name="others_item">Outros</string>
+    <string name="expense_title">despesa</string>
+</resources>

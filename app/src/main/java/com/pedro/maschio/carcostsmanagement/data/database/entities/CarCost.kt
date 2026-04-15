@@ -20,7 +20,7 @@ data class CarCost(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     @ColumnInfo(name = "createdAt") val createdAt: Long = System.currentTimeMillis(),
     @ColumnInfo(name = "updatedAt") val updatedAt: Long = System.currentTimeMillis(),
-    @ColumnInfo(name = "type") val type: String,
+    @ColumnInfo(name = "type") val type: Int,
     @ColumnInfo(name = "price") val price: Double,
     @ColumnInfo(name = "date") val date: Long,
     @ColumnInfo(name = "description") val description: String,

@@ -197,7 +197,7 @@ fun MainScreen(
                     CostEntry(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                         title = cost.description,
-                        typeName = cost.type,
+                        type = cost.type,
                         price = cost.price,
                         date = cost.date,
                         onCostClick = {
@@ -212,7 +212,7 @@ fun MainScreen(
 
                 item {
                     if (uiState.costs.isEmpty()) {
-                        EmptyList()
+                        EmptyList(message = stringResource(R.string.empty_expenses_message))
                     }
                 }
 

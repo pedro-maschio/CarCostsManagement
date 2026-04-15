@@ -26,6 +26,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,7 +53,7 @@ fun AddCostEntry(
     var model: CarCost by remember {
         mutableStateOf(
             costEntry ?: CarCost(
-                type = "",
+                type = 0,
                 price = 0.0,
                 date = System.currentTimeMillis(),
                 description = ""
@@ -90,24 +91,25 @@ fun AddCostEntry(
     ) {
 
         val radioOptions = stringArrayResource(R.array.cost_options)
-        val (selectedOption, onOptionSelected) = remember { mutableStateOf(radioOptions[0]) }
+        // 0 - gas, 1 - maintenance, 2 - others
+        val (selectedOption, onOptionSelected) = remember { mutableIntStateOf(0) }
         Column(modifier.selectableGroup()) {
             Text(text = "Type")
-            radioOptions.forEach { text ->
+            radioOptions.forEachIndexed { index, text ->
                 Row(
                     Modifier
                         .fillMaxWidth()
                         .height(56.dp)
                         .selectable(
-                            selected = (text == selectedOption),
-                            onClick = { onOptionSelected(text) },
+                            selected = (index == selectedOption),
+                            onClick = { onOptionSelected(index) },
                             role = Role.RadioButton
                         )
                         .padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = (text == selectedOption),
+                        selected = (index == selectedOption),
                         onClick = null // null recommended for accessibility with screen readers
                     )
                     Text(
@@ -233,7 +235,7 @@ fun AddCostEntryPreview() {
     AddCostEntry(
         costEntry = CarCost(
             id = 0,
-            type = "Gas",
+            type = 0,
             price = 247.0,
             date = 32434223,
             description = ""

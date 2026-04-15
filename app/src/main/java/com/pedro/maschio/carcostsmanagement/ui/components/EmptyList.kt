@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun EmptyList(
     modifier: Modifier = Modifier,
-    message: String = "There is no car costs added yet! Click on Add Cost to start tracking your car expenses!"
+    message: String = "There are no car costs added yet! Click on Add Cost to start tracking your car expenses!"
 ) {
     Column(
         modifier = modifier
