@@ -20,7 +20,7 @@ interface CarCostDao {
     @Delete
     suspend fun deleteCost(cost: CarCost)
 
-    @Query("SELECT * FROM carCosts WHERE carId = :selectedCarId ORDER BY createdAt DESC")
+    @Query("SELECT * FROM carCosts WHERE carId = :selectedCarId ORDER BY date DESC")
     suspend fun getAllCosts(selectedCarId: Long): List<CarCost>
 
     @Query("SELECT SUM(carCosts.price) FROM carCosts WHERE carId = :selectedCarId")

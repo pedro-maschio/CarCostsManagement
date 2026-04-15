@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.map
 
 class CarCostsRepositoryImpl(
     private val context: Context,
-    private val carCostsApi: CarCostsApi,
     private val carCostDao: CarCostDao,
     private val carDao: CarDao,
 ) : CarCostsRepository {
