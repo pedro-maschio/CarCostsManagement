@@ -24,6 +24,7 @@
     <string name="delete_dialog_message">Se você excluir um carro, todas as entradas (despesas) relacionadas a ele também serão excluídas permanentemente</string>
     <string name="cars_screen_title">Seus carros</string>
     <string name="empty_cars_message">Ainda não há carros cadastrados. Volte para a tela inicial e clique no ícone de mais no canto inferior direito</string>
+    <string name="rename_instruction">Clique duas vezes em um carro para renomeá-lo</string>
     <string name="empty_expenses_message">Ainda não há despesas cadastradas! Clique em Adicionar despesa para começar a gerenciar suas despesas</string>
     <string name="gas_item">Gasolina</string>
     <string name="maintenance_item">Manutenção</string>

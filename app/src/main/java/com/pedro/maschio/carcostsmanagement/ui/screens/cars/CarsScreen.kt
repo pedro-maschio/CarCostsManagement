@@ -3,15 +3,20 @@ package com.pedro.maschio.carcostsmanagement.ui.screens.cars
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +39,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -101,14 +108,46 @@ fun CarsScreen(
         })
     }) { paddingValues ->
         LazyColumn(modifier = modifier.padding(paddingValues)) {
+            item {
+                if (uiState.cars.isNotEmpty()) {
+                    Surface(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        color = Color.LightGray.copy(alpha = 0.2f),
+                        border = BorderStroke(1.dp, Color.Gray)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = Color.Gray
+                            )
+                            Text(
+                                text = stringResource(R.string.rename_instruction),
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
+            }
             items(uiState.cars) { car ->
                 CarItem(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     car = car,
-                    isDeletable = uiState.cars.size > 1
-                ) {
-                    viewModel.toggleDeleteDialog(car)
-                }
+                    isDeletable = uiState.cars.size > 1,
+                    onDeleteClick = {
+                        viewModel.toggleDeleteDialog(car)
+                    },
+                    onRename = { updatedCar ->
+                        viewModel.updateCar(updatedCar)
+                    }
+                )
             }
 
 
@@ -132,10 +171,11 @@ fun CarItem(
     shape: RoundedCornerShape = RoundedCornerShape(size = 8.dp),
     car: Car,
     isDeletable: Boolean,
-    onClick: () -> Unit
+    onDeleteClick: () -> Unit,
+    onRename: (Car) -> Unit
 ) {
-    // TODO: finish this later. Add rename option for car names!!
     var isEditing by remember { mutableStateOf(false) }
+    var editedName by remember(car.name) { mutableStateOf(car.name) }
     Surface(
         modifier = modifier
             .clip(shape),
@@ -148,21 +188,49 @@ fun CarItem(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier.weight(1f).pointerInput(Unit) { detectTapGestures(onDoubleTap = { tapOffset ->
-                    if(isEditing) {
-                        // define edit logic here
-                    } else {
-                        isEditing = true
+            if (isEditing) {
+                TextField(
+                    value = editedName,
+                    onValueChange = { editedName = it },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = {
+                        if (editedName.isNotBlank()) {
+                            onRename(car.copy(name = editedName))
+                            isEditing = false
+                        }
+                    })
+                )
+                IconButton(onClick = {
+                    if (editedName.isNotBlank()) {
+                        onRename(car.copy(name = editedName))
+                        isEditing = false
                     }
-                })},
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(text = car.name)
-            }
-            if(isDeletable) {
-                IconButton(onClick = onClick) {
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                }) {
+                    Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                }
+                IconButton(onClick = {
+                    isEditing = false
+                    editedName = car.name
+                }) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                }
+            } else {
+                Text(
+                    text = car.name,
+                    modifier = Modifier
+                        .weight(1f)
+                        .pointerInput(Unit) {
+                            detectTapGestures(onDoubleTap = {
+                                isEditing = true
+                            })
+                        }
+                )
+                if (isDeletable) {
+                    IconButton(onClick = onDeleteClick) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                    }
                 }
             }
         }
@@ -172,5 +240,10 @@ fun CarItem(
 @Preview
 @Composable
 fun CarItemPreview(modifier: Modifier = Modifier) {
-    CarItem(car = Car(id = -1, name = "Sandero"), isDeletable = true) { }
+    CarItem(
+        car = Car(id = -1, name = "Sandero"),
+        isDeletable = true,
+        onDeleteClick = {},
+        onRename = {}
+    )
 }

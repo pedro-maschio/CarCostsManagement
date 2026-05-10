@@ -45,7 +45,7 @@ android {
 }
 
 ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("room.schemaLocation", "$projectDir/room_schemas")
 }
 
 dependencies {

@@ -61,7 +61,7 @@ fun AddCostEntry(
         )
     }
     var showDatePicker by remember { mutableStateOf(false) }
-    var showAdditionalFields by remember { mutableStateOf(false) }
+    var showAdditionalFields by remember { mutableStateOf(model.description.isNotBlank()) }
     val datePickerState = rememberDatePickerState()
 
     fun onPriceChange(price: String) {
@@ -92,7 +92,7 @@ fun AddCostEntry(
 
         val radioOptions = stringArrayResource(R.array.cost_options)
         // 0 - gas, 1 - maintenance, 2 - others
-        val (selectedOption, onOptionSelected) = remember { mutableIntStateOf(0) }
+        var selectedOption by remember { mutableIntStateOf(model.type) }
         Column(modifier.selectableGroup()) {
             Text(text = "Type")
             radioOptions.forEachIndexed { index, text ->
@@ -102,7 +102,7 @@ fun AddCostEntry(
                         .height(56.dp)
                         .selectable(
                             selected = (index == selectedOption),
-                            onClick = { onOptionSelected(index) },
+                            onClick = { selectedOption = index },
                             role = Role.RadioButton
                         )
                         .padding(horizontal = 16.dp),
@@ -238,7 +238,7 @@ fun AddCostEntryPreview() {
             type = 0,
             price = 247.0,
             date = 32434223,
-            description = ""
+            description = "15000 KM"
         )
     )
 }

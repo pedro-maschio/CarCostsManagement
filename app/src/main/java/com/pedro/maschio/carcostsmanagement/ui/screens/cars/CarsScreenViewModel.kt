@@ -29,4 +29,9 @@ class CarsScreenViewModel(private val carCostsRepository: CarCostsRepository) : 
             selectedToDeleteCar = car
         )
     }
+
+    fun updateCar(car: Car) = viewModelScope.launch {
+        carCostsRepository.updateCar(car)
+        getCars()
+    }
 }

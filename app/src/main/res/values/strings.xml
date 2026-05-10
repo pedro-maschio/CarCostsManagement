@@ -26,6 +26,7 @@
     <string name="delete_dialog_message">If you delete a car, all expense entries related to it will also be deleted permanently</string>
     <string name="cars_screen_title">Your cars</string>
     <string name="empty_cars_message">There are no cars added yet. Go back to the home screen and click on the plus icon on the right corner</string>
+    <string name="rename_instruction">Double click on a car to rename it</string>
 
     <!--    Miscellaneous    -->
     <string name="gas_item">Gas</string>
