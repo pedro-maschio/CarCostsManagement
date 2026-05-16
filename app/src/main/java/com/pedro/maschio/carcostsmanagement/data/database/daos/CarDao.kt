@@ -23,4 +23,7 @@ interface CarDao {
     @Query("SELECT * FROM cars ORDER BY createdAt ASC")
     suspend fun getAllCars(): List<Car>
 
+    @Query("SELECT * FROM cars WHERE id = :id")
+    suspend fun getCar(id: Long): Car?
+
 }

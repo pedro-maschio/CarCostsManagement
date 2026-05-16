@@ -61,6 +61,26 @@ fun CarsScreen(
         viewModel.getCars()
     }
 
+    CarsScreenContent(
+        modifier = modifier,
+        uiState = uiState,
+        onBackPress = onBackPress,
+        onDeleteCar = { viewModel.deleteCar() },
+        onToggleDeleteDialog = { viewModel.toggleDeleteDialog(it) },
+        onUpdateCar = { viewModel.updateCar(it) }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CarsScreenContent(
+    modifier: Modifier = Modifier,
+    uiState: CarsScreenUiState,
+    onBackPress: () -> Unit,
+    onDeleteCar: () -> Unit,
+    onToggleDeleteDialog: (Car?) -> Unit,
+    onUpdateCar: (Car) -> Unit
+) {
     if (uiState.isDeleteDialogShowing) {
         AlertDialog(
             icon = {
@@ -73,12 +93,12 @@ fun CarsScreen(
                 Text(text = stringResource(R.string.delete_dialog_message))
             },
             onDismissRequest = {
-               viewModel.toggleDeleteDialog(null)
+                onToggleDeleteDialog(null)
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.deleteCar()
+                        onDeleteCar()
                     }
                 ) {
                     Text(stringResource(R.string.positive_button))
@@ -87,7 +107,7 @@ fun CarsScreen(
             dismissButton = {
                 TextButton(
                     onClick = {
-                        viewModel.toggleDeleteDialog(null)
+                        onToggleDeleteDialog(null)
                     }
                 ) {
                     Text(stringResource(R.string.dismiss_button))
@@ -142,10 +162,10 @@ fun CarsScreen(
                     car = car,
                     isDeletable = uiState.cars.size > 1,
                     onDeleteClick = {
-                        viewModel.toggleDeleteDialog(car)
+                        onToggleDeleteDialog(car)
                     },
                     onRename = { updatedCar ->
-                        viewModel.updateCar(updatedCar)
+                        onUpdateCar(updatedCar)
                     }
                 )
             }
@@ -235,6 +255,23 @@ fun CarItem(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CarsScreenPreview() {
+    CarsScreenContent(
+        uiState = CarsScreenUiState(
+            cars = listOf(
+                Car(id = 1, name = "Sandero"),
+                Car(id = 2, name = "Gol")
+            )
+        ),
+        onBackPress = {},
+        onDeleteCar = {},
+        onToggleDeleteDialog = {},
+        onUpdateCar = {}
+    )
 }
 
 @Preview

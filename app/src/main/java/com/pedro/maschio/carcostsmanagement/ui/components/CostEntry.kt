@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pedro.maschio.carcostsmanagement.R
+import com.pedro.maschio.carcostsmanagement.utils.CurrencyUtils
 import com.pedro.maschio.carcostsmanagement.utils.DateUtils.getDateStringFromMillis
 
 @Composable
@@ -36,7 +37,6 @@ fun CostEntry(
     type: Int = 0,
     date: Long = System.currentTimeMillis(),
     price: Double = 247.0,
-    priceType: String = "R$",
     onCostClick: () -> Unit = {},
     onDeleteButtonClick: () -> Unit = {}
 ) {
@@ -75,7 +75,7 @@ fun CostEntry(
                 Text(text = title.ifEmpty { "${costOptions[type]} - ${stringResource(R.string.expense_title)}" })
                 Text(text = costTag)
             }
-            Text(text = "$priceType $price")
+            Text(text = CurrencyUtils.formatCurrency(price))
             IconButton(onClick = onDeleteButtonClick) {
                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
             }

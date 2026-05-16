@@ -1,13 +1,16 @@
 package com.pedro.maschio.carcostsmanagement.data.repository
 
 import android.content.Context
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import com.pedro.maschio.carcostsmanagement.data.SettingsKeys
 import com.pedro.maschio.carcostsmanagement.data.dataStore
 import com.pedro.maschio.carcostsmanagement.data.database.daos.CarCostDao
 import com.pedro.maschio.carcostsmanagement.data.database.daos.CarDao
 import com.pedro.maschio.carcostsmanagement.data.database.entities.Car
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
-import com.pedro.maschio.carcostsmanagement.data.network.CarCostsApi
+import com.pedro.maschio.carcostsmanagement.data.setFuelPrices
 import com.pedro.maschio.carcostsmanagement.data.setIntroShown
 import com.pedro.maschio.carcostsmanagement.data.setIsLoggedIn
 import com.pedro.maschio.carcostsmanagement.data.setSelectedCarId
@@ -30,21 +33,36 @@ class CarCostsRepositoryImpl(
             it[SettingsKeys.INTRO_SHOWN] ?: false
         }
 
-    override suspend fun setSelectedCar(carId: Long) {
-        setSelectedCarId(context, carId)
-    }
-
-    override val selectedCar: Flow<Long> = context.dataStore.data.map {
+    override val selectedCar: Flow<Long?> = context.dataStore.data.map {
         it[SettingsKeys.SELECTED_CAR_ID]
-            ?: 1 // initial room id (when there's only one car, this one is the default selected!)
     }
 
     override val isLoggedIn: Flow<Boolean> = context.dataStore.data.map {
         it[SettingsKeys.IS_LOGGED_IN] ?: true // TODO: default to true for now
     }
 
+    override val ethanolPrice: Flow<Double> = context.dataStore.data.map {
+        it[SettingsKeys.ETHANOL_PRICE] ?: 0.0
+    }
+
+    override val gasolinePrice: Flow<Double> = context.dataStore.data.map {
+        it[SettingsKeys.GASOLINE_PRICE] ?: 0.0
+    }
+
+    override suspend fun setSelectedCar(carId: Long) {
+        setSelectedCarId(context, carId)
+    }
+
+    override suspend fun setFuelPrices(ethanol: Double, gasoline: Double) {
+        setFuelPrices(context, ethanol, gasoline)
+    }
+
     override suspend fun insertCost(cost: CarCost) {
         carCostDao.insertCost(cost.copy(createdAt = System.currentTimeMillis()))
+    }
+
+    override suspend fun insertCosts(costs: List<CarCost>) {
+        carCostDao.insertCosts(costs.map { it.copy(createdAt = System.currentTimeMillis()) })
     }
 
     override suspend fun updateCost(cost: CarCost) {
@@ -55,8 +73,14 @@ class CarCostsRepositoryImpl(
         carCostDao.deleteCost(cost)
     }
 
-    override suspend fun getCosts(selectedCarId: Long): List<CarCost> {
-        return carCostDao.getAllCosts(selectedCarId)
+    override fun getCosts(selectedCarId: Long): Flow<PagingData<CarCost>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 30,
+                enablePlaceholders = false
+            ),
+            pagingSourceFactory = { carCostDao.getAllCosts(selectedCarId) }
+        ).flow
     }
 
     override suspend fun getTotalCosts(selectedCarId: Long): Double {
@@ -74,6 +98,10 @@ class CarCostsRepositoryImpl(
 
     override suspend fun getCars(): List<Car> {
         return carDao.getAllCars()
+    }
+
+    override suspend fun getCar(id: Long): Car? {
+        return carDao.getCar(id)
     }
 
     override suspend fun deleteCar(car: Car) {

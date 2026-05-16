@@ -30,4 +30,8 @@
     <string name="maintenance_item">Manutenção</string>
     <string name="others_item">Outros</string>
     <string name="expense_title">despesa</string>
+    <string name="fuel_prices_title">Preços dos Combustíveis</string>
+    <string name="ethanol_label">Preço do Etanol</string>
+    <string name="gasoline_label">Preço da Gasolina</string>
+    <string name="save_button">Salvar</string>
 </resources>

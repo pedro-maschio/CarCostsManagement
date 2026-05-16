@@ -2,6 +2,7 @@ package com.pedro.maschio.carcostsmanagement.data
 
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -12,6 +13,8 @@ object SettingsKeys {
     val INTRO_SHOWN = booleanPreferencesKey("intro_shown")
     val SELECTED_CAR_ID = longPreferencesKey("selected_car_id")
     val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
+    val ETHANOL_PRICE = doublePreferencesKey("ethanol_price")
+    val GASOLINE_PRICE = doublePreferencesKey("gasoline_price")
 }
 
 suspend fun setSelectedCarId(context: Context, carId: Long) {
@@ -29,5 +32,12 @@ suspend fun setIntroShown(context: Context) {
 suspend fun setIsLoggedIn(context: Context, isLoggedIn: Boolean) {
     context.dataStore.edit { prefs ->
         prefs[SettingsKeys.IS_LOGGED_IN] = isLoggedIn
+    }
+}
+
+suspend fun setFuelPrices(context: Context, ethanol: Double, gasoline: Double) {
+    context.dataStore.edit { prefs ->
+        prefs[SettingsKeys.ETHANOL_PRICE] = ethanol
+        prefs[SettingsKeys.GASOLINE_PRICE] = gasoline
     }
 }

@@ -41,4 +41,10 @@
     <string name="ok_button" translatable="false">OK</string>
     <string name="total_costs">Total expenses</string>
     <string name="expense_title">expense</string>
+
+    <!-- Brazilian Features -->
+    <string name="fuel_prices_title">Fuel Prices</string>
+    <string name="ethanol_label">Ethanol Price</string>
+    <string name="gasoline_label">Gasoline Price</string>
+    <string name="save_button">Save</string>
 </resources>

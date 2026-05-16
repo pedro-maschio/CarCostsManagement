@@ -9,5 +9,10 @@ data class MainScreenUiState(
     val cars: List<Car> = emptyList(),
     val currentCarName: String = "",
     val totalCosts: Double = 0.0,
-    val costs: List<CarCost> = emptyList()
+    val ethanolPrice: Double = 0.0,
+    val gasolinePrice: Double = 0.0,
+    val isFuelPriceDialogShown: Boolean = false,
+    val isUpdateMileageDialogShown: Boolean = false,
+    val maintenanceAlert: String? = null,
+    val currentMileage: Int = 0
 )

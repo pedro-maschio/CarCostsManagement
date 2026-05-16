@@ -20,13 +20,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pedro.maschio.carcostsmanagement.R
+import com.pedro.maschio.carcostsmanagement.utils.CurrencyUtils
 
 @Composable
 fun CostsHeader(
     modifier: Modifier = Modifier, totalCosts: Double = 2500.0
 ) {
     Row(modifier = modifier.padding(16.dp).fillMaxWidth()) {
-        CostsCard(title = stringResource(R.string.total_costs), value = "R$ $totalCosts")
+        CostsCard(title = stringResource(R.string.total_costs), value = CurrencyUtils.formatCurrency(totalCosts))
     }
 
 }

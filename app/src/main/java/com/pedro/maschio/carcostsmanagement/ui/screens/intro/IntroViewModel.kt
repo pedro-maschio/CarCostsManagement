@@ -18,13 +18,24 @@ class IntroViewModel(private val repository: CarCostsRepository) : ViewModel() {
     val uiEvents = _uiEvents.asSharedFlow()
 
     fun onSaveCar() = viewModelScope.launch {
-        repository.insertCar(Car(name = _uiState.value.carName))
+        val mileage = _uiState.value.carMileage.toIntOrNull() ?: 0
+        repository.insertCar(
+            Car(
+                name = _uiState.value.carName,
+                mileage = mileage,
+                lastOilChangeMileage = mileage
+            )
+        )
         repository.setIsIntroShown()
         _uiEvents.emit(IntroUiEvents.GoToCarListing)
     }
 
     fun onCarNameChanged(name: String) {
         _uiState.update { it.copy(carName = name) }
+    }
+
+    fun onCarMileageChanged(mileage: String) {
+        _uiState.update { it.copy(carMileage = mileage) }
     }
 
 }
