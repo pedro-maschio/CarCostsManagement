@@ -10,14 +10,14 @@ class AppViewModel(private val repository: CarCostsRepository): ViewModel() {
     val introShown = repository.introShown
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.Eagerly,
             initialValue = null
         )
 
     val isLoggedIn = repository.isLoggedIn
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.Eagerly,
             initialValue = null
         )
 }

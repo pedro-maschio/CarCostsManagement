@@ -25,4 +25,5 @@ data class CarCost(
     @ColumnInfo(name = "date") val date: Long,
     @ColumnInfo(name = "description") val description: String,
     @ColumnInfo(name = "carId") val carId: Long = -1,
+    @ColumnInfo(name = "recurrence", defaultValue = "0") val recurrence: Int = 0,
 )

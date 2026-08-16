@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -35,10 +37,10 @@ object CarsScreen
 @Composable
 fun NavHost(modifier: Modifier = Modifier, viewModel: AppViewModel = koinViewModel()) {
     val navController = rememberNavController()
-    val introShown = viewModel.introShown.collectAsState().value
-    val isLoggedIn = viewModel.isLoggedIn.collectAsState().value
+    val introShownState by viewModel.introShown.collectAsStateWithLifecycle()
+    val isLoggedInState by viewModel.isLoggedIn.collectAsStateWithLifecycle()
 
-    if (introShown == null || isLoggedIn == null) {
+    if (introShownState == null || isLoggedInState == null) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
@@ -49,10 +51,12 @@ fun NavHost(modifier: Modifier = Modifier, viewModel: AppViewModel = koinViewMod
         return
     }
 
-    val startDestination = when {
-        !isLoggedIn -> LoginScreen
-        !introShown -> IntroScreen
-        else -> MainScreen
+    val startDestination = remember(introShownState, isLoggedInState) {
+        when {
+            isLoggedInState == false -> LoginScreen
+            introShownState == false -> IntroScreen
+            else -> MainScreen
+        }
     }
 
     NavHost(
@@ -68,8 +72,10 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
     composable<LoginScreen> {
         LoginScreen(
             onLoginSuccess = {
-                navController.navigate(IntroScreen) {
-                    popUpTo(LoginScreen) { inclusive = true }
+                if (navController.currentBackStackEntry?.lifecycle?.currentState == androidx.lifecycle.Lifecycle.State.RESUMED) {
+                    navController.navigate(IntroScreen) {
+                        popUpTo(LoginScreen) { inclusive = true }
+                    }
                 }
             }
         )
@@ -78,8 +84,10 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
     composable<IntroScreen> {
         IntroScreen(
             goToCostsListing = {
-                navController.navigate(MainScreen) {
-                    popUpTo(IntroScreen) { inclusive = true }
+                if (navController.currentBackStackEntry?.lifecycle?.currentState == androidx.lifecycle.Lifecycle.State.RESUMED) {
+                    navController.navigate(MainScreen) {
+                        popUpTo(IntroScreen) { inclusive = true }
+                    }
                 }
             }
         )
@@ -87,13 +95,19 @@ fun NavGraphBuilder.mainGraph(navController: NavHostController) {
 
     composable<MainScreen> {
         MainScreen {
-            navController.navigate(CarsScreen)
+            if (navController.currentBackStackEntry?.lifecycle?.currentState == androidx.lifecycle.Lifecycle.State.RESUMED) {
+                navController.navigate(CarsScreen) {
+                    launchSingleTop = true
+                }
+            }
         }
     }
 
     composable<CarsScreen> {
         CarsScreen {
-            navController.popBackStack()
+            if (navController.currentBackStackEntry?.lifecycle?.currentState == androidx.lifecycle.Lifecycle.State.RESUMED) {
+                navController.popBackStack()
+            }
         }
     }
 }

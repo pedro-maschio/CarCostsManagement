@@ -1,6 +1,7 @@
 package com.pedro.maschio.carcostsmanagement.di
 
 import androidx.room.Room
+import androidx.work.WorkManager
 import com.pedro.maschio.carcostsmanagement.data.database.AppDatabase
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepository
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepositoryImpl
@@ -9,8 +10,13 @@ import com.pedro.maschio.carcostsmanagement.ui.screens.cars.CarsScreenViewModel
 import com.pedro.maschio.carcostsmanagement.ui.screens.intro.IntroViewModel
 import com.pedro.maschio.carcostsmanagement.ui.screens.login.LoginViewModel
 import com.pedro.maschio.carcostsmanagement.ui.screens.main.MainScreenViewModel
+import com.pedro.maschio.carcostsmanagement.utils.NotificationHelper
+import com.pedro.maschio.carcostsmanagement.worker.RecurrenceManager
+import com.pedro.maschio.carcostsmanagement.worker.RecurrenceWorker
+import com.pedro.maschio.carcostsmanagement.worker.RescheduleWorker
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.dsl.workerOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -29,6 +35,13 @@ val appModule = module {
 
     single { get<AppDatabase>().carCostDao() }
     single { get<AppDatabase>().carDao() }
+
+    single { NotificationHelper(androidContext()) }
+    single { WorkManager.getInstance(androidContext()) }
+    single { RecurrenceManager(get()) }
+
+    workerOf(::RecurrenceWorker)
+    workerOf(::RescheduleWorker)
 
 
 //    single {

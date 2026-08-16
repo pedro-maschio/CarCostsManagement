@@ -32,7 +32,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,10 +74,6 @@ fun MainScreen(
     val costs = viewModel.costs.collectAsLazyPagingItems()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
-    LaunchedEffect(Unit) {
-        viewModel.getMainScreenData()
-    }
 
     MainScreenContent(
         modifier = modifier,

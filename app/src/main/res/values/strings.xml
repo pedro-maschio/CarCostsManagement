@@ -47,4 +47,13 @@
     <string name="ethanol_label">Ethanol Price</string>
     <string name="gasoline_label">Gasoline Price</string>
     <string name="save_button">Save</string>
+
+    <!-- Recurrence -->
+    <string name="recurrence_label">Recurrence</string>
+    <string name="none_item">None</string>
+    <string name="monthly_item">Monthly</string>
+    <string name="yearly_item">Yearly</string>
+    <string name="recurrence_notification_channel_name">Expense Reminders</string>
+    <string name="recurrence_notification_title">Expense Reminder</string>
+    <string name="recurrence_notification_message">Time to repeat your expense: %s</string>
 </resources>

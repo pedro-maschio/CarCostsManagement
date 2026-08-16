@@ -5,4 +5,10 @@
         <item>@string/maintenance_item</item>
         <item>@string/others_item</item>
     </string-array>
+
+    <string-array name="recurrence_options">
+        <item>@string/none_item</item>
+        <item>@string/monthly_item</item>
+        <item>@string/yearly_item</item>
+    </string-array>
 </resources>

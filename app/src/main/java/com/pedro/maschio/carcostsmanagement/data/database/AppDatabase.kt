@@ -10,9 +10,10 @@ import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
 
 @Database(
     entities = [Car::class, CarCost::class],
-    version = 3,
+    version = 4,
     autoMigrations = [
-        AutoMigration(from = 2, to = 3)
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4)
     ]
 )
 abstract class AppDatabase : RoomDatabase() {

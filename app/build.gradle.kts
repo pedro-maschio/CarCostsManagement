@@ -13,8 +13,8 @@ android {
         applicationId = "com.pedro.maschio.carcostsmanagement"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,7 +45,7 @@ android {
 }
 
 ksp {
-    arg("room.schemaLocation", "$projectDir/room_schemas")
+    arg("room.schemaLocation", "${layout.buildDirectory.get().asFile}/room_schemas")
 }
 
 dependencies {
@@ -64,6 +64,7 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+    implementation(libs.koin.androidx.workmanager)
     implementation(libs.koin.androidx.compose)
     implementation(libs.koin.compose)
     implementation(libs.koin.compose.viewmodel)

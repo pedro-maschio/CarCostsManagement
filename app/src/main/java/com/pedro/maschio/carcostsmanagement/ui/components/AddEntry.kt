@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.pedro.maschio.carcostsmanagement.R
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
+import com.pedro.maschio.carcostsmanagement.data.database.entities.CostType
+import com.pedro.maschio.carcostsmanagement.data.database.entities.RecurrenceType
 import com.pedro.maschio.carcostsmanagement.utils.DateUtils.getDateStringFromMillis
 
 @Composable
@@ -53,7 +56,7 @@ fun AddCostEntry(
     var model: CarCost by remember {
         mutableStateOf(
             costEntry ?: CarCost(
-                type = 0,
+                type = CostType.GAS.value,
                 price = 0.0,
                 date = System.currentTimeMillis(),
                 description = ""
@@ -91,7 +94,6 @@ fun AddCostEntry(
     ) {
 
         val radioOptions = stringArrayResource(R.array.cost_options)
-        // 0 - gas, 1 - maintenance, 2 - others
         var selectedOption by remember { mutableIntStateOf(model.type) }
         Column(modifier.selectableGroup()) {
             Text(text = "Type")
@@ -152,6 +154,48 @@ fun AddCostEntry(
             value = getDateStringFromMillis(model.date), onValueChange = {
                 // No op
             })
+
+        val recurrenceOptions = stringArrayResource(R.array.recurrence_options)
+        var selectedRecurrence by remember { mutableIntStateOf(model.recurrence) }
+
+        AnimatedVisibility(visible = selectedOption == CostType.MAINTENANCE.value || selectedOption == CostType.OTHERS.value) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectableGroup()
+            ) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                Text(
+                    text = stringResource(R.string.recurrence_label),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                recurrenceOptions.forEachIndexed { index, text ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .selectable(
+                                selected = (index == selectedRecurrence),
+                                onClick = { selectedRecurrence = index },
+                                role = Role.RadioButton
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (index == selectedRecurrence),
+                            onClick = null
+                        )
+                        Text(
+                            text = text,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                    }
+                }
+            }
+        }
+
         if(!showAdditionalFields) {
             IconButton(onClick = {
                 showAdditionalFields = !showAdditionalFields
@@ -184,7 +228,8 @@ fun AddCostEntry(
                     .padding(top = 16.dp, bottom = 16.dp, end = 8.dp), onClick = {
                     onCostEntryAdded(
                         model.copy(
-                            type = selectedOption
+                            type = selectedOption,
+                            recurrence = if (selectedOption == CostType.MAINTENANCE.value || selectedOption == CostType.OTHERS.value) selectedRecurrence else RecurrenceType.NONE.value
                         )
                     )
                 }) {

@@ -57,8 +57,8 @@ class CarCostsRepositoryImpl(
         setFuelPrices(context, ethanol, gasoline)
     }
 
-    override suspend fun insertCost(cost: CarCost) {
-        carCostDao.insertCost(cost.copy(createdAt = System.currentTimeMillis()))
+    override suspend fun insertCost(cost: CarCost): Long {
+        return carCostDao.insertCost(cost.copy(createdAt = System.currentTimeMillis()))
     }
 
     override suspend fun insertCosts(costs: List<CarCost>) {
@@ -117,6 +117,14 @@ class CarCostsRepositoryImpl(
 
     override suspend fun setIsLoggedIn(isLoggedIn: Boolean) {
         setIsLoggedIn(context, isLoggedIn)
+    }
+
+    override suspend fun getCost(id: Long): CarCost? {
+        return carCostDao.getCostById(id)
+    }
+
+    override suspend fun getRecurringCosts(): List<CarCost> {
+        return carCostDao.getAllRecurringCosts()
     }
 
 }

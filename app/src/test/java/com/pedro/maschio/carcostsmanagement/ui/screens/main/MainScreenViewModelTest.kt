@@ -1,11 +1,12 @@
 package com.pedro.maschio.carcostsmanagement.ui.screens.main
 
+import androidx.paging.PagingData
+import app.cash.turbine.test
 import com.pedro.maschio.carcostsmanagement.data.database.entities.Car
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepository
 import com.pedro.maschio.carcostsmanagement.rules.MainDispatcherRule
-import androidx.paging.PagingData
-import app.cash.turbine.test
+import com.pedro.maschio.carcostsmanagement.worker.RecurrenceManager
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -13,10 +14,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -29,6 +28,7 @@ class MainScreenViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository: CarCostsRepository = mockk(relaxed = true)
+    private val recurrenceManager: RecurrenceManager = mockk(relaxed = true)
     private lateinit var viewModel: MainScreenViewModel
 
     private val selectedCarIdFlow = MutableStateFlow<Long?>(null)
@@ -43,27 +43,33 @@ class MainScreenViewModelTest {
         every { repository.ethanolPrice } returns ethanolPriceFlow
         every { repository.gasolinePrice } returns gasolinePriceFlow
         every { repository.getCosts(any()) } returns flowOf(PagingData.empty())
-        viewModel = MainScreenViewModel(repository)
+        
+        // Setup defaults for init blocks
+        coEvery { repository.getCars() } returns emptyList()
+        coEvery { repository.getTotalCosts(any()) } returns 0.0
+        coEvery { repository.getCar(any()) } returns null
     }
 
     @Test
-    fun `getMainScreenData updates uiState when car is selected`() = runTest {
+    fun `uiState updates when car is selected via flow`() = runTest {
         val cars = listOf(testCar)
         coEvery { repository.getCars() } returns cars
         coEvery { repository.getTotalCosts(1) } returns 100.0
         coEvery { repository.getCar(1) } returns testCar
         
+        viewModel = MainScreenViewModel(repository, recurrenceManager)
+        
         selectedCarIdFlow.value = 1
         
-        // Trigger collection of selectedCarId stateIn
-        val job = launch { viewModel.selectedCarId.collect {} }
-        
-        viewModel.getMainScreenData()
-        
-        assertEquals(cars, viewModel.uiState.value.cars)
-        assertEquals(100.0, viewModel.uiState.value.totalCosts, 0.0)
-        
-        job.cancel()
+        // Turbine on uiState to wait for emission
+        viewModel.uiState.test {
+            var item = awaitItem()
+            while (item.totalCosts != 100.0) {
+                item = awaitItem()
+            }
+            assertEquals(cars, item.cars)
+            assertEquals(100.0, item.totalCosts, 0.0)
+        }
     }
 
     @Test
@@ -72,54 +78,43 @@ class MainScreenViewModelTest {
         coEvery { repository.getCar(1) } returns testCar
         coEvery { repository.getCars() } returns listOf(testCar.copy(mileage = 105000))
 
-        viewModel.selectedCarId.test {
-            assertEquals(1L, awaitItem())
+        viewModel = MainScreenViewModel(repository, recurrenceManager)
 
-            viewModel.updateMileage(105000)
-            
-            coVerify { repository.updateCar(match { it.id == 1L && it.mileage == 105000 }) }
-            assertEquals(105000, viewModel.uiState.value.currentMileage)
-        }
+        viewModel.updateMileage(105000)
+        
+        coVerify { repository.updateCar(match { it.id == 1L && it.mileage == 105000 }) }
+        assertEquals(105000, viewModel.uiState.value.currentMileage)
     }
 
     @Test
     fun `checkMaintenance shows alert when oil change is near`() = runTest {
-        // testCar has mileage 100000, lastOilChange 95000. oilChangeInterval is 10000.
-        // kmRemaining = 95000 + 10000 - 100000 = 5000.
-        // Let's make it near: mileage 104600.
-        // kmRemaining = 95000 + 10000 - 104600 = 400.
         val nearMaintenanceCar = testCar.copy(mileage = 104600)
         
         selectedCarIdFlow.value = 1
         coEvery { repository.getCars() } returns listOf(nearMaintenanceCar)
         coEvery { repository.getCar(1) } returns nearMaintenanceCar
         
-        viewModel.selectedCarId.test {
-            assertEquals(1L, awaitItem())
-
-            viewModel.getMainScreenData()
-            
-            // Advance virtual time if needed, but since it's Unconfined/Standard, 
-            // we might need to wait for uiState to update.
-            viewModel.uiState.test {
-                // Skip initial state
-                var item = awaitItem()
-                while(item.maintenanceAlert == null) {
-                    item = awaitItem()
-                }
-                assertEquals("Troca de óleo em 400 km", item.maintenanceAlert)
+        viewModel = MainScreenViewModel(repository, recurrenceManager)
+        
+        viewModel.uiState.test {
+            var item = awaitItem()
+            while(item.maintenanceAlert == null) {
+                item = awaitItem()
             }
+            assertEquals("Troca de óleo em 400 km", item.maintenanceAlert)
         }
     }
 
     @Test
     fun `setFuelPrices calls repository`() = runTest {
+        viewModel = MainScreenViewModel(repository, recurrenceManager)
         viewModel.setFuelPrices(3.5, 5.5)
         coVerify { repository.setFuelPrices(3.5, 5.5) }
     }
 
     @Test
     fun `toggleFuelPriceDialog updates uiState`() {
+        viewModel = MainScreenViewModel(repository, recurrenceManager)
         assertFalse(viewModel.uiState.value.isFuelPriceDialogShown)
         viewModel.toggleFuelPriceDialog()
         assertTrue(viewModel.uiState.value.isFuelPriceDialogShown)
@@ -133,6 +128,7 @@ class MainScreenViewModelTest {
         ))
         every { repository.getCosts(carId) } returns flowOf(pagingData)
         
+        viewModel = MainScreenViewModel(repository, recurrenceManager)
         selectedCarIdFlow.value = carId
         
         viewModel.costs.test {
@@ -143,6 +139,7 @@ class MainScreenViewModelTest {
 
     @Test
     fun `showAddEntry updates uiState`() {
+        viewModel = MainScreenViewModel(repository, recurrenceManager)
         assertFalse(viewModel.uiState.value.isAddEntryShown)
         viewModel.showAddEntry()
         assertTrue(viewModel.uiState.value.isAddEntryShown)

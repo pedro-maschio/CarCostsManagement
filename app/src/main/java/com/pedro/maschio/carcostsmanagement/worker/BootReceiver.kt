@@ -1,0 +1,17 @@
+package com.pedro.maschio.carcostsmanagement.worker
+
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+
+class BootReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            // We need to re-scan the DB and re-schedule all work after reboot
+            val workRequest = OneTimeWorkRequestBuilder<RescheduleWorker>().build()
+            WorkManager.getInstance(context).enqueue(workRequest)
+        }
+    }
+}

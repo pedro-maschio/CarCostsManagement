@@ -6,6 +6,7 @@ import androidx.paging.cachedIn
 import com.pedro.maschio.carcostsmanagement.data.database.entities.Car
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepository
+import com.pedro.maschio.carcostsmanagement.worker.RecurrenceManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,14 +18,17 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MainScreenViewModel(private val repository: CarCostsRepository) : ViewModel() {
+class MainScreenViewModel(
+    private val repository: CarCostsRepository,
+    private val recurrenceManager: RecurrenceManager
+) : ViewModel() {
     private val _uiState = MutableStateFlow(MainScreenUiState())
     val uiState = _uiState.asStateFlow()
 
     val selectedCarId = repository.selectedCar
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
+            started = SharingStarted.Eagerly, // Changed to Eagerly to prevent navigation flicker
             initialValue = null
         )
 
@@ -33,7 +37,12 @@ class MainScreenViewModel(private val repository: CarCostsRepository) : ViewMode
         repository.getCosts(carId).cachedIn(viewModelScope)
     }
 
-    fun getMainScreenData() = viewModelScope.launch {
+    init {
+        observeSelectedCar()
+        observeFuelPrices()
+    }
+
+    private fun observeSelectedCar() = viewModelScope.launch {
         selectedCarId.collectLatest { carId ->
             val cars = repository.getCars()
             _uiState.update { it.copy(cars = cars) }
@@ -48,32 +57,35 @@ class MainScreenViewModel(private val repository: CarCostsRepository) : ViewMode
             // If we found a different valid ID (or no ID), update the repository
             if (validCarId != null && validCarId != carId) {
                 repository.setSelectedCar(validCarId)
-                return@collectLatest // The flow will emit again
+                return@collectLatest
             }
 
             if (validCarId != null) {
-                getTotalCosts()
-                getFuelPrices()
-                getGasolinePrices()
+                updateTotalCosts(validCarId)
                 checkMaintenance(validCarId)
             } else {
-                // Reset state if no cars exist
                 _uiState.update { MainScreenUiState() }
-                getCars() // To keep the empty cars list
+                getCars() 
             }
         }
     }
 
-    private fun getFuelPrices() = viewModelScope.launch {
-        repository.ethanolPrice.collectLatest { ethanol ->
-            _uiState.update { it.copy(ethanolPrice = ethanol) }
+    private fun observeFuelPrices() = viewModelScope.launch {
+        launch {
+            repository.ethanolPrice.collect { ethanol ->
+                _uiState.update { it.copy(ethanolPrice = ethanol) }
+            }
+        }
+        launch {
+            repository.gasolinePrice.collect { gasoline ->
+                _uiState.update { it.copy(gasolinePrice = gasoline) }
+            }
         }
     }
 
-    private fun getGasolinePrices() = viewModelScope.launch {
-        repository.gasolinePrice.collectLatest { gasoline ->
-            _uiState.update { it.copy(gasolinePrice = gasoline) }
-        }
+    private suspend fun updateTotalCosts(carId: Long) {
+        val total = repository.getTotalCosts(carId)
+        _uiState.update { it.copy(totalCosts = total) }
     }
 
     fun setFuelPrices(ethanol: Double, gasoline: Double) = viewModelScope.launch {
@@ -92,7 +104,6 @@ class MainScreenViewModel(private val repository: CarCostsRepository) : ViewMode
         val carId = selectedCarId.value ?: return@launch
         val car = repository.getCar(carId) ?: return@launch
         repository.updateCar(car.copy(mileage = mileage))
-        // Update local state immediately for better responsiveness
         _uiState.update { it.copy(currentMileage = mileage) }
         checkMaintenance(carId)
         getCars()
@@ -123,7 +134,8 @@ class MainScreenViewModel(private val repository: CarCostsRepository) : ViewMode
 
     fun deleteCostEntry(cost: CarCost) = viewModelScope.launch {
         repository.deleteCost(cost)
-        getTotalCosts()
+        recurrenceManager.cancel(cost.id)
+        selectedCarId.value?.let { updateTotalCosts(it) }
     }
 
     fun toggleAddEntry() {
@@ -135,22 +147,22 @@ class MainScreenViewModel(private val repository: CarCostsRepository) : ViewMode
     }
 
     fun addCostEntry(cost: CarCost) = viewModelScope.launch {
-        val selectedCarId = selectedCarId.value
-        if(selectedCarId != null) {
-            if(cost.id == 0L) repository.insertCost(cost.copy(carId = selectedCarId))
-            else repository.updateCost(cost.copy(carId = selectedCarId))
-            getTotalCosts()
+        val carId = selectedCarId.value
+        if(carId != null) {
+            val costToSave = cost.copy(carId = carId)
+            val costId = if(cost.id == 0L) {
+                repository.insertCost(costToSave)
+            } else {
+                repository.updateCost(costToSave)
+                cost.id
+            }
+            recurrenceManager.schedule(costId, costToSave.copy(id = costId))
+            updateTotalCosts(carId)
         }
     }
 
-    private fun getTotalCosts() = viewModelScope.launch {
-        selectedCarId.filterNotNull().collectLatest { carId ->
-            _uiState.update { it.copy(totalCosts = repository.getTotalCosts(carId)) }
-        }
-    }
     fun toggleAddCarDialog() {
-        _uiState.value =
-            _uiState.value.copy(isAddCarDialogShown = !_uiState.value.isAddCarDialogShown)
+        _uiState.update { it.copy(isAddCarDialogShown = !it.isAddCarDialogShown) }
     }
 
     fun updateCarName(name: String) {

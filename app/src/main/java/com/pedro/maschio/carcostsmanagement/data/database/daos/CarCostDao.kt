@@ -13,7 +13,7 @@ import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
 interface CarCostDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCost(cost: CarCost)
+    suspend fun insertCost(cost: CarCost): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCosts(costs: List<CarCost>)
@@ -29,4 +29,10 @@ interface CarCostDao {
 
     @Query("SELECT SUM(carCosts.price) FROM carCosts WHERE carId = :selectedCarId")
     suspend fun getTotalCosts(selectedCarId: Long): Double
+
+    @Query("SELECT * FROM carCosts WHERE id = :id")
+    suspend fun getCostById(id: Long): CarCost?
+
+    @Query("SELECT * FROM carCosts WHERE recurrence != 0")
+    suspend fun getAllRecurringCosts(): List<CarCost>
 }

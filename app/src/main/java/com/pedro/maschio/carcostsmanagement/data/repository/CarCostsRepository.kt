@@ -15,7 +15,7 @@ interface CarCostsRepository {
     suspend fun setIsIntroShown()
     suspend fun setSelectedCar(carId: Long)
     suspend fun setFuelPrices(ethanol: Double, gasoline: Double)
-    suspend fun insertCost(cost: CarCost)
+    suspend fun insertCost(cost: CarCost): Long
     suspend fun insertCosts(costs: List<CarCost>)
     suspend fun updateCost(cost: CarCost)
     suspend fun deleteCost(cost: CarCost)
@@ -27,4 +27,6 @@ interface CarCostsRepository {
     suspend fun getCar(id: Long): Car?
     suspend fun deleteCar(car: Car)
     suspend fun setIsLoggedIn(isLoggedIn: Boolean)
+    suspend fun getCost(id: Long): CarCost?
+    suspend fun getRecurringCosts(): List<CarCost>
 }
