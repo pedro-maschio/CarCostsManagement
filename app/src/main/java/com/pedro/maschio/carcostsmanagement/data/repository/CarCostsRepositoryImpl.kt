@@ -83,7 +83,7 @@ class CarCostsRepositoryImpl(
         ).flow
     }
 
-    override suspend fun getTotalCosts(selectedCarId: Long): Double {
+    override fun getTotalCosts(selectedCarId: Long): Flow<Double?> {
         return carCostDao.getTotalCosts(selectedCarId)
     }
 
@@ -96,7 +96,7 @@ class CarCostsRepositoryImpl(
         carDao.updateCar(car)
     }
 
-    override suspend fun getCars(): List<Car> {
+    override fun getCars(): Flow<List<Car>> {
         return carDao.getAllCars()
     }
 
@@ -108,9 +108,9 @@ class CarCostsRepositoryImpl(
         carDao.deleteCar(car)
 
         // Ensure that there is a selected car after deletion
-        val cars = getCars()
+        val cars = carDao.getAllCars().first()
         val currentSelectedCar = selectedCar.first()
-        if (currentSelectedCar !in cars.map { it.id }) {
+        if (cars.isNotEmpty() && currentSelectedCar !in cars.map { it.id }) {
             setSelectedCar(cars.first().id)
         }
     }

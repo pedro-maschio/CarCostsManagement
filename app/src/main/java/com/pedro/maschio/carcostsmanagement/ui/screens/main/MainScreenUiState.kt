@@ -13,6 +13,6 @@ data class MainScreenUiState(
     val gasolinePrice: Double = 0.0,
     val isFuelPriceDialogShown: Boolean = false,
     val isUpdateMileageDialogShown: Boolean = false,
-    val maintenanceAlert: String? = null,
+    val maintenanceAlertKmRemaining: Int? = null,
     val currentMileage: Int = 0
 )

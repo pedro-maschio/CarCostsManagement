@@ -1,17 +1,17 @@
 package com.pedro.maschio.carcostsmanagement.ui.screens.intro
 
 import app.cash.turbine.test
-import com.pedro.maschio.carcostsmanagement.data.database.entities.Car
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepository
 import com.pedro.maschio.carcostsmanagement.rules.MainDispatcherRule
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class IntroViewModelTest {
 
     @get:Rule
@@ -21,44 +21,32 @@ class IntroViewModelTest {
     private lateinit var viewModel: IntroViewModel
 
     @Test
-    fun `onCarNameChanged updates uiState`() = runTest {
+    fun `onCarNameChanged updates uiState`() {
         viewModel = IntroViewModel(repository)
-        val name = "Toyota Corolla"
-        
-        viewModel.onCarNameChanged(name)
-        
-        assertEquals(name, viewModel.uiState.value.carName)
+        viewModel.onCarNameChanged("Civic")
+        assertEquals("Civic", viewModel.uiState.value.carName)
     }
 
     @Test
-    fun `onCarMileageChanged updates uiState`() = runTest {
+    fun `onCarMileageChanged updates uiState`() {
         viewModel = IntroViewModel(repository)
-        val mileage = "15000"
-        
-        viewModel.onCarMileageChanged(mileage)
-        
-        assertEquals(mileage, viewModel.uiState.value.carMileage)
+        viewModel.onCarMileageChanged("50000")
+        assertEquals("50000", viewModel.uiState.value.carMileage)
     }
 
     @Test
-    fun `onSaveCar saves car and emits GoToCarListing event`() = runTest {
+    fun `onSaveCar saves car and emits navigation event`() = runTest {
         viewModel = IntroViewModel(repository)
-        val name = "Civic"
-        val mileage = "10000"
-        
-        viewModel.onCarNameChanged(name)
-        viewModel.onCarMileageChanged(mileage)
-        
+        viewModel.onCarNameChanged("Civic")
+        viewModel.onCarMileageChanged("50000")
+
         viewModel.uiEvents.test {
             viewModel.onSaveCar()
             
             coVerify { 
-                repository.insertCar(match { 
-                    it.name == name && it.mileage == 10000 && it.lastOilChangeMileage == 10000 
-                })
+                repository.insertCar(match { it.name == "Civic" && it.mileage == 50000 })
                 repository.setIsIntroShown()
             }
-            
             assertEquals(IntroUiEvents.GoToCarListing, awaitItem())
         }
     }

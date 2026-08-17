@@ -20,10 +20,10 @@ interface CarCostsRepository {
     suspend fun updateCost(cost: CarCost)
     suspend fun deleteCost(cost: CarCost)
     fun getCosts(selectedCarId: Long): Flow<PagingData<CarCost>>
-    suspend fun getTotalCosts(selectedCarId: Long): Double
+    fun getTotalCosts(selectedCarId: Long): Flow<Double?>
     suspend fun insertCar(car: Car)
     suspend fun updateCar(car: Car)
-    suspend fun getCars(): List<Car>
+    fun getCars(): Flow<List<Car>>
     suspend fun getCar(id: Long): Car?
     suspend fun deleteCar(car: Car)
     suspend fun setIsLoggedIn(isLoggedIn: Boolean)

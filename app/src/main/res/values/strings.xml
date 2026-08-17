@@ -41,6 +41,7 @@
     <string name="ok_button" translatable="false">OK</string>
     <string name="total_costs">Total expenses</string>
     <string name="expense_title">expense</string>
+    <string name="maintenance_alert">Oil change in %d km</string>
 
     <!-- Brazilian Features -->
     <string name="fuel_prices_title">Fuel Prices</string>

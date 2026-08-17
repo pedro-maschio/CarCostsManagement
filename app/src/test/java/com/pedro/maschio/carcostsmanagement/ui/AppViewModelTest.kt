@@ -1,6 +1,5 @@
 package com.pedro.maschio.carcostsmanagement.ui
 
-import app.cash.turbine.test
 import com.pedro.maschio.carcostsmanagement.data.repository.CarCostsRepository
 import com.pedro.maschio.carcostsmanagement.rules.MainDispatcherRule
 import io.mockk.every
@@ -21,27 +20,20 @@ class AppViewModelTest {
     private val repository: CarCostsRepository = mockk(relaxed = true)
     private lateinit var viewModel: AppViewModel
 
-    @Test
-    fun `introShown reflects repository value`() = runTest {
-        val introShownFlow = MutableStateFlow(true)
-        every { repository.introShown } returns introShownFlow
-        
-        viewModel = AppViewModel(repository)
-        
-        viewModel.introShown.test {
-            assertEquals(true, awaitItem())
-        }
-    }
+    private val introShownFlow = MutableStateFlow(false)
+    private val isLoggedInFlow = MutableStateFlow(false)
 
     @Test
-    fun `isLoggedIn reflects repository value`() = runTest {
-        val isLoggedInFlow = MutableStateFlow(false)
+    fun `viewModel reflects repository flows`() = runTest {
+        every { repository.introShown } returns introShownFlow
         every { repository.isLoggedIn } returns isLoggedInFlow
         
         viewModel = AppViewModel(repository)
         
-        viewModel.isLoggedIn.test {
-            assertEquals(false, awaitItem())
-        }
+        introShownFlow.value = true
+        isLoggedInFlow.value = false
+        
+        assertEquals(true, viewModel.introShown.value)
+        assertEquals(false, viewModel.isLoggedIn.value)
     }
 }

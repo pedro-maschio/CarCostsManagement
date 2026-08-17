@@ -10,82 +10,107 @@ import com.pedro.maschio.carcostsmanagement.worker.RecurrenceManager
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(
     private val repository: CarCostsRepository,
     private val recurrenceManager: RecurrenceManager
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(MainScreenUiState())
-    val uiState = _uiState.asStateFlow()
+
+    private val _isAddEntryShown = MutableStateFlow(false)
+    private val _isAddCarDialogShown = MutableStateFlow(false)
+    private val _currentCarName = MutableStateFlow("")
+    private val _isFuelPriceDialogShown = MutableStateFlow(false)
+    private val _isUpdateMileageDialogShown = MutableStateFlow(false)
 
     val selectedCarId = repository.selectedCar
         .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.Eagerly, // Changed to Eagerly to prevent navigation flicker
+            started = SharingStarted.Eagerly,
             initialValue = null
         )
+
+    private val _cars = repository.getCars()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val costs = selectedCarId.filterNotNull().flatMapLatest { carId ->
         repository.getCosts(carId).cachedIn(viewModelScope)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val _totalCosts = selectedCarId.flatMapLatest { id ->
+        if (id != null) repository.getTotalCosts(id) else flowOf(0.0)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val uiState = combine(
+        _isAddEntryShown,
+        _isAddCarDialogShown,
+        _cars,
+        _currentCarName,
+        repository.ethanolPrice,
+        repository.gasolinePrice,
+        _isFuelPriceDialogShown,
+        _isUpdateMileageDialogShown,
+        selectedCarId,
+        _totalCosts
+    ) { args ->
+        val isAddEntryShown = args[0] as Boolean
+        val isAddCarDialogShown = args[1] as Boolean
+        val cars = args[2] as List<Car>
+        val currentCarName = args[3] as String
+        val ethanolPrice = args[4] as Double
+        val gasolinePrice = args[5] as Double
+        val isFuelPriceDialogShown = args[6] as Boolean
+        val isUpdateMileageDialogShown = args[7] as Boolean
+        val selId = args[8] as Long?
+        val totalCosts = (args[9] as Double?) ?: 0.0
+
+        val selectedCar = cars.find { it.id == selId }
+        val kmRemaining = selectedCar?.let { (it.lastOilChangeMileage + it.oilChangeInterval) - it.mileage }
+        val maintenanceAlertKmRemaining = if (kmRemaining != null && kmRemaining <= 500) {
+            kmRemaining
+        } else null
+
+        MainScreenUiState(
+            isAddEntryShown = isAddEntryShown,
+            isAddCarDialogShown = isAddCarDialogShown,
+            cars = cars,
+            currentCarName = currentCarName,
+            totalCosts = totalCosts,
+            ethanolPrice = ethanolPrice,
+            gasolinePrice = gasolinePrice,
+            isFuelPriceDialogShown = isFuelPriceDialogShown,
+            isUpdateMileageDialogShown = isUpdateMileageDialogShown,
+            maintenanceAlertKmRemaining = maintenanceAlertKmRemaining,
+            currentMileage = selectedCar?.mileage ?: 0
+        )
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = MainScreenUiState()
+    )
+
     init {
-        observeSelectedCar()
-        observeFuelPrices()
-    }
-
-    private fun observeSelectedCar() = viewModelScope.launch {
-        selectedCarId.collectLatest { carId ->
-            val cars = repository.getCars()
-            _uiState.update { it.copy(cars = cars) }
-
-            // Validate the selected car ID
-            val validCarId = if (carId == null || cars.none { it.id == carId }) {
-                cars.firstOrNull()?.id
-            } else {
-                carId
+        // Validation logic for selectedCarId
+        combine(selectedCarId, _cars) { carId, cars ->
+            if (cars.isNotEmpty()) {
+                val validCarId = if (carId == null || cars.none { it.id == carId }) {
+                    cars.firstOrNull()?.id
+                } else {
+                    carId
+                }
+                if (validCarId != null && validCarId != carId) {
+                    repository.setSelectedCar(validCarId)
+                }
             }
-
-            // If we found a different valid ID (or no ID), update the repository
-            if (validCarId != null && validCarId != carId) {
-                repository.setSelectedCar(validCarId)
-                return@collectLatest
-            }
-
-            if (validCarId != null) {
-                updateTotalCosts(validCarId)
-                checkMaintenance(validCarId)
-            } else {
-                _uiState.update { MainScreenUiState() }
-                getCars() 
-            }
-        }
-    }
-
-    private fun observeFuelPrices() = viewModelScope.launch {
-        launch {
-            repository.ethanolPrice.collect { ethanol ->
-                _uiState.update { it.copy(ethanolPrice = ethanol) }
-            }
-        }
-        launch {
-            repository.gasolinePrice.collect { gasoline ->
-                _uiState.update { it.copy(gasolinePrice = gasoline) }
-            }
-        }
-    }
-
-    private suspend fun updateTotalCosts(carId: Long) {
-        val total = repository.getTotalCosts(carId)
-        _uiState.update { it.copy(totalCosts = total) }
+        }.launchIn(viewModelScope)
     }
 
     fun setFuelPrices(ethanol: Double, gasoline: Double) = viewModelScope.launch {
@@ -93,97 +118,64 @@ class MainScreenViewModel(
     }
 
     fun toggleFuelPriceDialog() {
-        _uiState.update { it.copy(isFuelPriceDialogShown = !it.isFuelPriceDialogShown) }
+        _isFuelPriceDialogShown.value = !_isFuelPriceDialogShown.value
     }
 
     fun toggleUpdateMileageDialog() {
-        _uiState.update { it.copy(isUpdateMileageDialogShown = !it.isUpdateMileageDialogShown) }
+        _isUpdateMileageDialogShown.value = !_isUpdateMileageDialogShown.value
     }
 
     fun updateMileage(mileage: Int) = viewModelScope.launch {
         val carId = selectedCarId.value ?: return@launch
         val car = repository.getCar(carId) ?: return@launch
         repository.updateCar(car.copy(mileage = mileage))
-        _uiState.update { it.copy(currentMileage = mileage) }
-        checkMaintenance(carId)
-        getCars()
     }
 
     fun markOilChanged() = viewModelScope.launch {
         val carId = selectedCarId.value ?: return@launch
         val car = repository.getCar(carId) ?: return@launch
         repository.updateCar(car.copy(lastOilChangeMileage = car.mileage))
-        checkMaintenance(carId)
-        getCars()
-    }
-
-    private fun checkMaintenance(carId: Long) = viewModelScope.launch {
-        val car = repository.getCar(carId)
-        if (car != null) {
-            _uiState.update { it.copy(currentMileage = car.mileage) }
-            val kmRemaining = (car.lastOilChangeMileage + car.oilChangeInterval) - car.mileage
-            if (kmRemaining <= 500) {
-                _uiState.update { it.copy(maintenanceAlert = "Troca de óleo em $kmRemaining km") }
-            } else {
-                _uiState.update { it.copy(maintenanceAlert = null) }
-            }
-        } else {
-             _uiState.update { it.copy(currentMileage = 0, maintenanceAlert = null) }
-        }
     }
 
     fun deleteCostEntry(cost: CarCost) = viewModelScope.launch {
         repository.deleteCost(cost)
         recurrenceManager.cancel(cost.id)
-        selectedCarId.value?.let { updateTotalCosts(it) }
     }
 
     fun toggleAddEntry() {
-        _uiState.update { it.copy(isAddEntryShown = !it.isAddEntryShown) }
+        _isAddEntryShown.value = !_isAddEntryShown.value
     }
 
     fun showAddEntry() {
-        _uiState.update { it.copy(isAddEntryShown = true) }
+        _isAddEntryShown.value = true
     }
 
     fun addCostEntry(cost: CarCost) = viewModelScope.launch {
         val carId = selectedCarId.value
-        if(carId != null) {
+        if (carId != null) {
             val costToSave = cost.copy(carId = carId)
-            val costId = if(cost.id == 0L) {
+            val costId = if (cost.id == 0L) {
                 repository.insertCost(costToSave)
             } else {
                 repository.updateCost(costToSave)
                 cost.id
             }
             recurrenceManager.schedule(costId, costToSave.copy(id = costId))
-            updateTotalCosts(carId)
         }
     }
 
     fun toggleAddCarDialog() {
-        _uiState.update { it.copy(isAddCarDialogShown = !it.isAddCarDialogShown) }
+        _isAddCarDialogShown.value = !_isAddCarDialogShown.value
     }
 
     fun updateCarName(name: String) {
-        _uiState.update { it.copy(currentCarName = name) }
-    }
-
-    fun getCars() = viewModelScope.launch {
-        val cars = repository.getCars()
-        _uiState.update { it.copy(cars = cars) }
-        selectedCarId.value?.let { carId ->
-            cars.find { it.id == carId }?.let { car ->
-                _uiState.update { it.copy(currentMileage = car.mileage) }
-            }
-        }
+        _currentCarName.value = name
     }
 
     fun addCar(mileage: Int = 0) = viewModelScope.launch {
-        if (_uiState.value.currentCarName.isBlank()) return@launch
-
-        repository.insertCar(car = Car(name = _uiState.value.currentCarName, mileage = mileage, lastOilChangeMileage = mileage))
-        getCars()
+        val name = _currentCarName.value
+        if (name.isBlank()) return@launch
+        repository.insertCar(car = Car(name = name, mileage = mileage, lastOilChangeMileage = mileage))
     }
 
     fun selectCar(car: Car) = viewModelScope.launch {

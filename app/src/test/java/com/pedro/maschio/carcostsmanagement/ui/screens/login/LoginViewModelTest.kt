@@ -8,7 +8,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -25,41 +24,35 @@ class LoginViewModelTest {
     @Test
     fun `onUsernameChanged updates uiState`() {
         viewModel = LoginViewModel(repository)
-        val username = "user123"
-        
-        viewModel.onUsernameChanged(username)
-        
-        assertEquals(username, viewModel.uiState.value.username)
+        viewModel.onUsernameChanged("user123")
+        assertEquals("user123", viewModel.uiState.value.username)
     }
 
     @Test
     fun `onPasswordChanged updates uiState`() {
         viewModel = LoginViewModel(repository)
-        val password = "password123"
-        
-        viewModel.onPasswordChanged(password)
-        
-        assertEquals(password, viewModel.uiState.value.password)
+        viewModel.onPasswordChanged("password123")
+        assertEquals("password123", viewModel.uiState.value.password)
     }
 
     @Test
-    fun `onLoginClicked simulates login and emits LoginSuccess`() = runTest {
+    fun `onLoginClicked simulates login and emits success`() = runTest {
         viewModel = LoginViewModel(repository)
         
         viewModel.uiEvents.test {
             viewModel.onLoginClicked()
             
-            // Initial state should be loading (might be too fast to catch without Turbine on uiState)
-            // But we can check repository call and event
+            // Wait for loading to start (not strictly necessary for events test but good practice)
+            assertTrue(viewModel.uiState.value.isLoading)
             
             assertEquals(LoginUiEvent.LoginSuccess, awaitItem())
             coVerify { repository.setIsLoggedIn(true) }
-            assertFalse(viewModel.uiState.value.isLoading)
+            assertEquals(false, viewModel.uiState.value.isLoading)
         }
     }
 
     @Test
-    fun `onGoogleLoginClicked simulates login and emits LoginSuccess`() = runTest {
+    fun `onGoogleLoginClicked simulates login and emits success`() = runTest {
         viewModel = LoginViewModel(repository)
         
         viewModel.uiEvents.test {
@@ -67,7 +60,7 @@ class LoginViewModelTest {
             
             assertEquals(LoginUiEvent.LoginSuccess, awaitItem())
             coVerify { repository.setIsLoggedIn(true) }
-            assertFalse(viewModel.uiState.value.isLoading)
+            assertEquals(false, viewModel.uiState.value.isLoading)
         }
     }
 }

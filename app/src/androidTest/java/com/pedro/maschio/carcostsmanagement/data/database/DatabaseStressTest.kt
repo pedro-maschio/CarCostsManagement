@@ -8,6 +8,7 @@ import com.pedro.maschio.carcostsmanagement.data.database.daos.CarCostDao
 import com.pedro.maschio.carcostsmanagement.data.database.daos.CarDao
 import com.pedro.maschio.carcostsmanagement.data.database.entities.Car
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
@@ -60,7 +61,7 @@ class DatabaseStressTest {
 
         // 2. Measure aggregation time (SUM)
         val aggregationTime = measureTimeMillis {
-            val total = carCostDao.getTotalCosts(1)
+            val total = carCostDao.getTotalCosts(1).first()
             assert(total == entriesCount * 10.0)
         }
         println("Aggregation of $entriesCount entries took $aggregationTime ms")

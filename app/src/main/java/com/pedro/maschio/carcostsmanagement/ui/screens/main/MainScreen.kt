@@ -314,9 +314,9 @@ fun MainScreenContent(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                     
-                    uiState.maintenanceAlert?.let {
+                    uiState.maintenanceAlertKmRemaining?.let {
                         MaintenanceAlert(
-                            message = it,
+                            message = stringResource(R.string.maintenance_alert, it),
                             onActionClick = { onMarkOilChanged() },
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )

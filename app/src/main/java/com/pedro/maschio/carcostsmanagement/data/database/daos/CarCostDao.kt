@@ -8,6 +8,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CarCostDao {
@@ -28,7 +29,7 @@ interface CarCostDao {
     fun getAllCosts(selectedCarId: Long): PagingSource<Int, CarCost>
 
     @Query("SELECT SUM(carCosts.price) FROM carCosts WHERE carId = :selectedCarId")
-    suspend fun getTotalCosts(selectedCarId: Long): Double
+    fun getTotalCosts(selectedCarId: Long): Flow<Double?>
 
     @Query("SELECT * FROM carCosts WHERE id = :id")
     suspend fun getCostById(id: Long): CarCost?

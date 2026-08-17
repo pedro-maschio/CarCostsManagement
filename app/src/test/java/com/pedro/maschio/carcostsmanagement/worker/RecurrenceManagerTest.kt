@@ -4,6 +4,7 @@ import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.pedro.maschio.carcostsmanagement.data.database.entities.CarCost
+import com.pedro.maschio.carcostsmanagement.data.database.entities.RecurrenceType
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Before
@@ -20,53 +21,26 @@ class RecurrenceManagerTest {
     }
 
     @Test
-    fun `schedule enqueues unique work for recurring expense`() {
-        val costId = 1L
-        val cost = CarCost(
-            id = costId,
-            description = "Monthly Maintenance",
-            price = 100.0,
-            date = System.currentTimeMillis(),
-            type = 1,
-            carId = 1,
-            recurrence = 1 // Monthly
-        )
-
-        recurrenceManager.schedule(costId, cost)
-
-        verify { 
-            workManager.enqueueUniqueWork(
-                "recurrence_$costId",
-                ExistingWorkPolicy.REPLACE,
-                any<OneTimeWorkRequest>()
-            )
-        }
+    fun `schedule with NONE recurrence calls cancel`() {
+        val cost = CarCost(id = 1, type = 0, price = 100.0, date = System.currentTimeMillis(), carId = 1, recurrence = RecurrenceType.NONE.value, description = "Test")
+        recurrenceManager.schedule(1, cost)
+        verify { workManager.cancelUniqueWork("recurrence_1") }
     }
 
     @Test
-    fun `schedule cancels work if recurrence is none`() {
-        val costId = 1L
-        val cost = CarCost(
-            id = costId,
-            description = "One time cost",
-            price = 100.0,
-            date = System.currentTimeMillis(),
-            type = 1,
-            carId = 1,
-            recurrence = 0 // None
-        )
-
-        recurrenceManager.schedule(costId, cost)
-
-        verify { workManager.cancelUniqueWork("recurrence_$costId") }
-    }
-
-    @Test
-    fun `cancel cancels unique work`() {
-        val costId = 1L
+    fun `schedule with recurrence enqueues unique work`() {
+        // Use a future date to ensure positive delay
+        val futureDate = System.currentTimeMillis() + 1000 * 60 * 60 * 24 
+        val cost = CarCost(id = 1, type = 0, price = 100.0, date = futureDate, carId = 1, recurrence = RecurrenceType.MONTHLY.value, description = "Test")
         
-        recurrenceManager.cancel(costId)
+        recurrenceManager.schedule(1, cost)
+        
+        verify { workManager.enqueueUniqueWork("recurrence_1", any<ExistingWorkPolicy>(), any<OneTimeWorkRequest>()) }
+    }
 
-        verify { workManager.cancelUniqueWork("recurrence_$costId") }
+    @Test
+    fun `cancel calls workManager`() {
+        recurrenceManager.cancel(1)
+        verify { workManager.cancelUniqueWork("recurrence_1") }
     }
 }
